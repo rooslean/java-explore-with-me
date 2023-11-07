@@ -46,7 +46,7 @@ public class StatRepositoryImpl implements StatRepository {
         if (uris != null && !uris.isEmpty()) {
             query.append(" AND uri IN (:uris)");
         }
-        query.append(" GROUP BY uri");
+        query.append(" GROUP BY app, uri");
         query.append(" ORDER BY hits DESC");
 
         query.append(";");
