@@ -16,7 +16,7 @@ public class BaseClient {
         this.rest = rest;
     }
 
-    protected ResponseEntity<Object> get(String path, @Nullable MultiValueMap<String, String> parameters) {
+    protected ResponseEntity<Object> get(String path, MultiValueMap<String, String> parameters) {
         return makeAndSendRequest(HttpMethod.GET, path, parameters, null);
     }
 
@@ -24,13 +24,16 @@ public class BaseClient {
         return makeAndSendRequest(HttpMethod.POST, path, null, body);
     }
 
-    private <T> ResponseEntity<Object> makeAndSendRequest(HttpMethod method, String path, @Nullable MultiValueMap<String, String> parameters, @Nullable T body) {
+    private <T> ResponseEntity<Object> makeAndSendRequest(HttpMethod method, String path, MultiValueMap<String, String> parameters, @Nullable T body) {
         String uri = UriComponentsBuilder.fromPath(path)
                 .queryParams(parameters)
                 .build()
                 .toUriString();
 
-        HttpEntity<T> requestEntity = new HttpEntity<>(body);
+        HttpEntity<T> requestEntity = null;
+        if (body != null) {
+            requestEntity = new HttpEntity<>(body);
+        }
 
         ResponseEntity<Object> statServerResponse;
         try {
