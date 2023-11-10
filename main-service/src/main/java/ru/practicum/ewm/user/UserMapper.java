@@ -23,13 +23,4 @@ public class UserMapper {
                 .name(user.getName())
                 .build();
     }
-
-    public static void mapUserDtoToUserForUpdate(UserDto userDto, User user) {
-        if (userDto.getName() != null) {
-            user.setName(userDto.getName());
-        }
-        if (userDto.getEmail() != null) {
-            user.setEmail(userDto.getEmail());
-        }
-    }
 }
