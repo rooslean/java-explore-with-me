@@ -102,7 +102,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventFullDto getEvent(Long eventId, String ip, String uri) {
-        Event event = eventRepository.findById(eventId)
+        Event event = eventRepository.findByIdAndEventState(eventId, EventState.PUBLISHED)
                 .orElseThrow(ObjectNotFoundException::new);
         Long views = getViews(event.getCreatedOn(), List.of("/events/" + eventId), false)
                 .getOrDefault(eventId, 0L);

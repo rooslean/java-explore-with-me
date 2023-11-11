@@ -32,6 +32,7 @@ public class EventMapper {
                 .requestModeration(event.getRequestModeration())
                 .confirmedRequests(confirmedRequests)
                 .state(event.getEventState())
+                .participantLimit(event.getParticipantLimit())
                 .build();
     }
 

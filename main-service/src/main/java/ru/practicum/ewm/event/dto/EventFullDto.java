@@ -38,4 +38,5 @@ public class EventFullDto {
     Boolean requestModeration;
     Long confirmedRequests;
     EventState state;
+    Integer participantLimit;
 }
