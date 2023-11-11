@@ -291,8 +291,10 @@ public class EventServiceImpl implements EventService {
         Comparator<EventShortDto> comparator;
         if (EventSort.VIEWS.equals(sort)) {
             comparator = Comparator.comparing(EventShortDto::getViews);
-        } else {
+        } else if (EventSort.EVENT_DATE.equals(sort)) {
             comparator = Comparator.comparing(EventShortDto::getEventDate);
+        } else {
+            comparator = Comparator.comparing(EventShortDto::getId);
         }
         Map<Long, Long> confirmedRequests = requestRepository.countByUser(events.stream()
                         .map(Event::getId)
