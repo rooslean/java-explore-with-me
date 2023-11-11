@@ -76,7 +76,11 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventFullDto createEvent(Long userId, NewEventDto newEventDto) {
-        if (LocalDateTime.now().plusHours(2).isAfter(newEventDto.getEventDate())) {
+        LocalDateTime now = LocalDateTime.now();
+        if (newEventDto.getEventDate().isBefore(now)) {
+            throw new BadRequestException("Дата события не может быть в прошлом");
+        }
+        if (now.plusHours(2).isAfter(newEventDto.getEventDate())) {
             throw new ConflictException();
         }
         User user = userRepository.findById(userId)
