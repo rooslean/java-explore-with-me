@@ -16,6 +16,10 @@ import ru.practicum.ewm.event.dto.EventFullDto;
 import ru.practicum.ewm.event.dto.EventShortDto;
 import ru.practicum.ewm.event.dto.NewEventDto;
 import ru.practicum.ewm.event.dto.UpdateEventRequest;
+import ru.practicum.ewm.request.RequestService;
+import ru.practicum.ewm.request.dto.RequestDto;
+import ru.practicum.ewm.request.dto.RequestStatusUpdateDto;
+import ru.practicum.ewm.request.dto.RequestStatusUpdateResultDto;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -25,6 +29,7 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
     private final EventService eventService;
+    private final RequestService requestService;
 
     @GetMapping("/admin/users")
     public ResponseEntity<List<UserDto>> findAll(@RequestParam(required = false) List<Long> ids,
@@ -65,5 +70,32 @@ public class UserController {
     public ResponseEntity<EventFullDto> updateEvent(@PathVariable Long userId, @PathVariable Long eventId,
                                                     @RequestBody @Valid UpdateEventRequest updateEventRequest) {
         return new ResponseEntity<>(eventService.updateEvent(userId, eventId, updateEventRequest), HttpStatus.OK);
+    }
+
+    @GetMapping("/users/{userId}/events/{eventId}/requests")
+    public ResponseEntity<List<RequestDto>> getRequestsForUserEvent(@PathVariable Long userId, @PathVariable Long eventId) {
+        return new ResponseEntity<>(requestService.getRequestsForUserEvent(userId, eventId), HttpStatus.OK);
+    }
+
+    @PatchMapping("/users/{userId}/events/{eventId}/requests")
+    public ResponseEntity<RequestStatusUpdateResultDto> changeUserEventRequestsStatus(@PathVariable Long userId,
+                                                                                      @PathVariable Long eventId,
+                                                                                      @RequestBody @Valid RequestStatusUpdateDto requestStatusUpdateDto) {
+        return new ResponseEntity<>(requestService.changeUserEventRequestsStatus(userId, eventId, requestStatusUpdateDto), HttpStatus.OK);
+    }
+
+    @GetMapping("/users/{userId}/requests")
+    public ResponseEntity<List<RequestDto>> getUserRequests(@PathVariable Long userId) {
+        return new ResponseEntity<>(requestService.getUserRequests(userId), HttpStatus.OK);
+    }
+
+    @PostMapping("/users/{userId}/requests")
+    public ResponseEntity<RequestDto> addRequest(@PathVariable Long userId, @RequestParam Long eventId) {
+        return new ResponseEntity<>(requestService.addRequest(userId, eventId), HttpStatus.CREATED);
+    }
+
+    @PatchMapping("/users/{userId}/requests/{requestId}/cancel")
+    public ResponseEntity<RequestDto> cancelRequest(@PathVariable Long userId, @PathVariable Long requestId) {
+        return new ResponseEntity<>(requestService.cancelRequest(userId, requestId), HttpStatus.OK);
     }
 }
