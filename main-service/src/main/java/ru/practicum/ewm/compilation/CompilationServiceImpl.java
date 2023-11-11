@@ -72,7 +72,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional
     public CompilationDto addCompilation(NewCompilationDto newCompilationDto) {
-        List<Event> events = eventRepository.findAllById(newCompilationDto.getEvents());
+        List<Event> events = eventRepository.findAllById(newCompilationDto.getEvents() == null ? Collections.emptyList() : newCompilationDto.getEvents());
         Compilation compilation = CompilationMapper.mapToCompilation(newCompilationDto, events);
         compilation = compilationRepository.save(compilation);
         return CompilationMapper.mapToCompilationDto(compilation, getEventShortDtos(compilation));

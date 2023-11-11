@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.validator.constraints.Length;
 
 import java.util.List;
 
@@ -17,5 +18,6 @@ import java.util.List;
 public class UpdateCompilationDto {
     List<Long> events;
     Boolean pinned;
+    @Length(max = 50)
     String title;
 }

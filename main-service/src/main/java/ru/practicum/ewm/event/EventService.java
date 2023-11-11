@@ -25,7 +25,7 @@ public interface EventService {
                                          List<Long> categoryIds, LocalDateTime rangeStart,
                                          LocalDateTime rangeEnd, int from, int size);
 
-    List<EventShortDto> getEventsByFilter(String text, List<Long> categoryIds, boolean paid, boolean onlyAvailable,
+    List<EventShortDto> getEventsByFilter(String text, List<Long> categoryIds, Boolean paid, boolean onlyAvailable,
                                          EventSort sort, LocalDateTime rangeStart, LocalDateTime rangeEnd, int from,
                                          int size, String ip, String uri);
 }

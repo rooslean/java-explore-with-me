@@ -16,6 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CompilationDto {
+    Long id;
     List<EventShortDto> events;
     Boolean pinned;
     String title;

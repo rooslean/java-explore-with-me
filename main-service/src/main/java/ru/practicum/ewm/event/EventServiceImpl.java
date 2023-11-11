@@ -124,7 +124,7 @@ public class EventServiceImpl implements EventService {
             throw new ConflictException();
         }
         if (updEvent.getEventDate() != null && LocalDateTime.now().plusHours(2).isAfter(updEvent.getEventDate())) {
-            throw new ConflictException();
+            throw new BadRequestException("Некорректная дата");
         }
         Category category = null;
         if (updEvent.getCategory() != null) {
@@ -144,9 +144,16 @@ public class EventServiceImpl implements EventService {
     public EventFullDto updateEvent(Long eventId, UpdateEventRequest updEvent) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(ObjectNotFoundException::new);
-        if (LocalDateTime.now().plusHours(1).isAfter(event.getEventDate())) {
-            throw new ConflictException();
+        LocalDateTime now = LocalDateTime.now();
+        if (updEvent.getEventDate() != null) {
+            if (updEvent.getEventDate().isBefore(now)) {
+                throw new BadRequestException("Нельзя изменить на прошедшую дату");
+            }
+            if (now.plusHours(1).isAfter(updEvent.getEventDate())) {
+                throw new ConflictException();
+            }
         }
+
         if (EventStateAction.PUBLISH_EVENT.equals(updEvent.getStateAction())
                 && !event.getEventState().equals(EventState.PENDING)
                 || EventStateAction.REJECT_EVENT.equals(updEvent.getStateAction())
@@ -220,7 +227,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventShortDto> getEventsByFilter(String text, List<Long> categoryIds, boolean paid, boolean onlyAvailable,
+    public List<EventShortDto> getEventsByFilter(String text, List<Long> categoryIds, Boolean paid, boolean onlyAvailable,
                                                  EventSort sort, LocalDateTime rangeStart, LocalDateTime rangeEnd,
                                                  int from, int size, String ip, String uri) {
         ru.practicum.ewm.event.QEvent qEvent = ru.practicum.ewm.event.QEvent.event;
@@ -256,11 +263,14 @@ public class EventServiceImpl implements EventService {
         if (categoryIds != null && !categoryIds.isEmpty()) {
             conditions.add(qEvent.category.id.in(categoryIds));
         }
-        if (paid) {
-            conditions.add(qEvent.paid.isTrue());
-        } else {
-            conditions.add(qEvent.paid.isFalse());
+        if (paid != null) {
+            if (paid) {
+                conditions.add(qEvent.paid.isTrue());
+            } else {
+                conditions.add(qEvent.paid.isFalse());
+            }
         }
+
         conditions.add(qEvent.eventState.eq(EventState.PUBLISHED));
         PageRequest page = PageRequest.of(from / size, size);
         Optional<BooleanExpression> finalCondition = conditions.stream()

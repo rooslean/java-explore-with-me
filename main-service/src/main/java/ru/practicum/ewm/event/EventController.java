@@ -41,7 +41,7 @@ public class EventController {
     @GetMapping("/events")
     public ResponseEntity<List<EventShortDto>> findEvents(@RequestParam(required = false) String text,
                                                           @RequestParam(required = false) List<Long> categories,
-                                                          @RequestParam(defaultValue = "false") boolean paid,
+                                                          @RequestParam(required = false) Boolean paid,
                                                           @RequestParam(defaultValue = "false") boolean onlyAvailable,
                                                           @RequestParam(defaultValue = "EVENT_DATE") EventSort sort,
                                                           @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,

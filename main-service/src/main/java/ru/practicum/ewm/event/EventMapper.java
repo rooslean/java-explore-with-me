@@ -61,9 +61,9 @@ public class EventMapper {
                 .initiator(initiator)
                 .latitude(newEventDto.getLocation().getLat())
                 .longitude(newEventDto.getLocation().getLon())
-                .paid(newEventDto.getPaid())
-                .participantLimit(newEventDto.getParticipantLimit())
-                .requestModeration(newEventDto.getRequestModeration())
+                .paid(newEventDto.getPaid() != null && newEventDto.getPaid())
+                .participantLimit(newEventDto.getParticipantLimit() == null ? 0 : newEventDto.getParticipantLimit())
+                .requestModeration(newEventDto.getRequestModeration() == null || newEventDto.getRequestModeration())
                 .eventState(EventState.PENDING)
                 .build();
     }

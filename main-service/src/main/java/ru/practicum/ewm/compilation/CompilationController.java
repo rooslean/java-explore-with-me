@@ -46,7 +46,7 @@ public class CompilationController {
     }
     @PatchMapping("/admin/compilations/{compId}")
     public ResponseEntity<CompilationDto> updateCompilation(@PathVariable Long compId,
-                                                            @RequestBody UpdateCompilationDto updateCompilationDto) {
+                                                            @RequestBody @Valid UpdateCompilationDto updateCompilationDto) {
         return new ResponseEntity<>(compilationService.updateCompilation(compId, updateCompilationDto), HttpStatus.OK);
     }
 }
