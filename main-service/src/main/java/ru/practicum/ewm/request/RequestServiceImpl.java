@@ -74,7 +74,7 @@ public class RequestServiceImpl implements RequestService {
         if (!userRepository.existsById(userId)) {
             throw new ObjectNotFoundException();
         }
-        return requestRepository.findById(userId)
+        return requestRepository.findByRequesterId(userId)
                 .stream()
                 .map(RequestMapper::mapToRequestDto)
                 .collect(Collectors.toList());
@@ -110,7 +110,7 @@ public class RequestServiceImpl implements RequestService {
     public RequestDto cancelRequest(Long userId, Long requestId) {
         Request request = requestRepository.findByIdAndRequesterId(requestId, userId)
                 .orElseThrow(ObjectNotFoundException::new);
-        request.setStatus(RequestStatus.REJECTED);
+        request.setStatus(RequestStatus.CANCELED);
         request = requestRepository.save(request);
 
         return RequestMapper.mapToRequestDto(request);
