@@ -1,6 +1,7 @@
 package ru.practicum.ewm.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.JDBCException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -42,6 +43,12 @@ public class ErrorHandler {
     public ApiError handleConflictError(final ConflictException e) {
         log.warn(e.getMessage());
         return new ApiError("Ошибка при создании", e.getMessage(), HttpStatus.CONFLICT.toString(), LocalDateTime.now());
+    }
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError handleConflictError(final JDBCException e) {
+        log.warn(e.getMessage());
+        return new ApiError("Ошибка при записи в БД", e.getMessage(), HttpStatus.CONFLICT.toString(), LocalDateTime.now());
     }
 
     @ExceptionHandler

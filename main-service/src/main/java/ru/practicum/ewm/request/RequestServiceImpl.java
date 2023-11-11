@@ -45,7 +45,7 @@ public class RequestServiceImpl implements RequestService {
             return new RequestStatusUpdateResultDto(Collections.emptyList(), Collections.emptyList());
         }
         long confirmedCount = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
-        if (confirmedCount > event.getParticipantLimit()) {
+        if (confirmedCount >= event.getParticipantLimit()) {
             throw new ConflictException();
         }
         List<Request> requests = requestRepository.findByIdIn(requestStatusUpdateDto.getRequestIds());
@@ -88,7 +88,7 @@ public class RequestServiceImpl implements RequestService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(ObjectNotFoundException::new);
         long confirmedCount = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
-        boolean isLimited = event.getParticipantLimit() > 0 && event.getRequestModeration();
+        boolean isLimited = event.getParticipantLimit() > 0;
         boolean isLimitReached = isLimited && confirmedCount == event.getParticipantLimit();
         if (event.getInitiator().getId().equals(user.getId())
                 || !EventState.PUBLISHED.equals(event.getEventState())
@@ -100,7 +100,7 @@ public class RequestServiceImpl implements RequestService {
                 .requester(user)
                 .event(event)
                 .created(LocalDateTime.now())
-                .status(isLimited ? RequestStatus.PENDING : RequestStatus.CONFIRMED)
+                .status(!event.getRequestModeration() || !isLimited ? RequestStatus.CONFIRMED : RequestStatus.PENDING)
                 .build());
         return RequestMapper.mapToRequestDto(request);
     }

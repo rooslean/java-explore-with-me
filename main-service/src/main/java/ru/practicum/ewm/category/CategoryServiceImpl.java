@@ -28,7 +28,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(ObjectNotFoundException::new);
         category.setName(categoryDto.getName());
-        categoryDto = CategoryMapper.mapToCategoryDto(categoryRepository.save(category));
+        categoryDto = CategoryMapper.mapToCategoryDto(categoryRepository.saveAndFlush(category));
         return categoryDto;
     }
 
