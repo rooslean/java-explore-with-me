@@ -5,7 +5,10 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberTemplate;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -270,7 +273,14 @@ public class EventServiceImpl implements EventService {
         }
 
         conditions.add(qEvent.eventState.eq(EventState.PUBLISHED));
-        PageRequest page = PageRequest.of(from / size, size);
+        Comparator<EventShortDto> comparator = Comparator.comparing(EventShortDto::getId);
+        Sort reqSort = Sort.unsorted();
+        if (EventSort.VIEWS.equals(sort)) {
+            comparator = Comparator.comparing(EventShortDto::getViews);
+        } else if (EventSort.EVENT_DATE.equals(sort)) {
+            reqSort = Sort.by("eventDate").descending();
+        }
+        PageRequest page = PageRequest.of(from / size, size, reqSort);
         Optional<BooleanExpression> finalCondition = conditions.stream()
                 .reduce(BooleanExpression::and);
         List<Event> events = finalCondition.map(condition -> eventRepository.findAll(condition, page))
@@ -288,25 +298,27 @@ public class EventServiceImpl implements EventService {
 
         statClient.addHit("ewm-main-service", uri, ip, LocalDateTime.now());
 
-        Comparator<EventShortDto> comparator;
-        if (EventSort.VIEWS.equals(sort)) {
-            comparator = Comparator.comparing(EventShortDto::getViews);
-        } else if (EventSort.EVENT_DATE.equals(sort)) {
-            comparator = Comparator.comparing(EventShortDto::getEventDate);
-        } else {
-            comparator = Comparator.comparing(EventShortDto::getId);
-        }
+
         Map<Long, Long> confirmedRequests = requestRepository.countByUser(events.stream()
                         .map(Event::getId)
                         .collect(Collectors.toList()), RequestStatus.CONFIRMED)
                 .stream()
                 .collect(Collectors.toMap(RequestCountByEventId::getEventId, RequestCountByEventId::getCount));
 
-        return events.stream()
-                .map(e -> EventMapper.mapToEventShortDto(e, stats.getOrDefault(e.getId(), 0L),
-                        confirmedRequests.getOrDefault(e.getId(), 0L)))
-                .sorted(comparator)
-                .collect(Collectors.toList());
+        List<EventShortDto> eventShortDtos = Collections.emptyList();
+        if (EventSort.EVENT_DATE.equals(sort)) {
+            eventShortDtos = events.stream()
+                    .map(e -> EventMapper.mapToEventShortDto(e, stats.getOrDefault(e.getId(), 0L),
+                            confirmedRequests.getOrDefault(e.getId(), 0L)))
+                    .collect(Collectors.toList());
+        } else {
+            eventShortDtos = events.stream()
+                    .map(e -> EventMapper.mapToEventShortDto(e, stats.getOrDefault(e.getId(), 0L),
+                            confirmedRequests.getOrDefault(e.getId(), 0L)))
+                    .sorted(comparator)
+                    .collect(Collectors.toList());
+        }
+        return eventShortDtos;
     }
 
     private Map<Long, Long> getViews(List<Event> events, boolean unique) {
