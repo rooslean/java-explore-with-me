@@ -49,10 +49,8 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventShortDto> getUserEvents(Long userId, int from, int size) {
         PageRequest page = PageRequest.of(from / size, size);
-        List<String> uris = new ArrayList<>();
         List<Event> events = eventRepository.findByInitiatorId(userId, page)
                 .stream()
-                .peek(e -> uris.add("/events/" + e.getId()))
                 .collect(Collectors.toList());
         Map<Long, Long> stats;
         if (!events.isEmpty()) {

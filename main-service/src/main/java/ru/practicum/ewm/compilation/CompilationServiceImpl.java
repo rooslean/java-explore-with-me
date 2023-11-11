@@ -51,8 +51,8 @@ public class CompilationServiceImpl implements CompilationService {
         }
         PageRequest page = PageRequest.of(from / size, size);
         Page<Compilation> compilations = cond.map(booleanExpression -> compilationRepository
-                        .findAll(booleanExpression, page)).
-                orElseGet(() -> compilationRepository.findAll(page));
+                        .findAll(booleanExpression, page))
+                        .orElseGet(() -> compilationRepository.findAll(page));
 
         List<CompilationDto> compilationDtos = new ArrayList<>();
         for (Compilation comp : compilations.getContent()) {
@@ -81,7 +81,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional
     public void deleteCompilation(Long compilationId) {
-        Compilation compilation = compilationRepository.findById(compilationId)
+        compilationRepository.findById(compilationId)
                 .orElseThrow(ObjectNotFoundException::new);
         compilationRepository.deleteById(compilationId);
     }
