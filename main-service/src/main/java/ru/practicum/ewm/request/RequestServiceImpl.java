@@ -89,7 +89,7 @@ public class RequestServiceImpl implements RequestService {
                 .orElseThrow(ObjectNotFoundException::new);
         long confirmedCount = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
         boolean isLimited = event.getParticipantLimit() > 0;
-        boolean isLimitReached = isLimited && confirmedCount == event.getParticipantLimit();
+        boolean isLimitReached = isLimited && confirmedCount >= event.getParticipantLimit();
         if (event.getInitiator().getId().equals(user.getId())
                 || !EventState.PUBLISHED.equals(event.getEventState())
                 || isLimitReached
