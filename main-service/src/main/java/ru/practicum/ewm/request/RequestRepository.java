@@ -20,9 +20,10 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 
     Optional<Request> findByIdAndRequesterId(Long requestId, Long userId);
 
-    @Query(value = "select req.event_id, count(req) as count " +
+    @Query(value = "select req.event_id, count(req.event_id) as count " +
             "from requests req " +
             "where req.event_id in ?1 " +
-            "and req.status = ?2", nativeQuery = true)
+            "and req.status = ?2 " +
+            "group by req.event_id", nativeQuery = true)
     List<RequestCountByEventId> countByUser(List<Long> ids, RequestStatus status);
 }
