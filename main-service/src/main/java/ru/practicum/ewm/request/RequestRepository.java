@@ -2,6 +2,7 @@ package ru.practicum.ewm.request;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.practicum.ewm.request.dto.RequestCountByEventId;
 
@@ -20,10 +21,12 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 
     Optional<Request> findByIdAndRequesterId(Long requestId, Long userId);
 
-    @Query(value = "select req.event_id, count(req.event_id) as count " +
-            "from requests req " +
-            "where req.event_id in ?1 " +
-            "and req.status = ?2 " +
-            "group by req.event_id", nativeQuery = true)
-    List<RequestCountByEventId> countByUser(List<Long> ids, RequestStatus status);
+    @Query("SELECT NEW ru.practicum.ewm.request.dto.RequestCountByEventId(req.event.id, COUNT(req.id)) " +
+            "FROM Request req " +
+            "join req.event as event " +
+            "WHERE req.event.id IN :ids " +
+            "AND req.status = :status " +
+            "GROUP BY req.event.id")
+    List<RequestCountByEventId> countByUser(@Param("ids") List<Long> ids, @Param("status") RequestStatus status);
+
 }

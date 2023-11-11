@@ -34,7 +34,7 @@ public class EventController {
                                                          @RequestParam(defaultValue = "10") int size) {
         return new ResponseEntity<>(eventService.getEventsByFilter(users, states, categories, rangeStart, rangeEnd, from, size), HttpStatus.OK);
     }
-    @PatchMapping("/admin/event/{eventId}")
+    @PatchMapping("/admin/events/{eventId}")
     public ResponseEntity<EventFullDto> updateEvent(@PathVariable Long eventId, @RequestBody @Valid UpdateEventRequest updateEventRequest) {
         return new ResponseEntity<>(eventService.updateEvent(eventId, updateEventRequest), HttpStatus.OK);
     }
