@@ -1,5 +1,6 @@
 package ru.practicum.ewm.event;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberTemplate;
@@ -55,11 +56,7 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
         Map<Long, Long> stats;
         if (!events.isEmpty()) {
-            LocalDateTime minDate = events.stream()
-                    .map(Event::getCreatedOn)
-                    .min((LocalDateTime::compareTo))
-                    .orElseGet(LocalDateTime::now);
-            stats = getViews(minDate, uris, true);
+            stats = getViews(events, true);
         } else {
             stats = Collections.emptyMap();
         }
@@ -94,7 +91,7 @@ public class EventServiceImpl implements EventService {
     public EventFullDto getUserEvent(Long userId, Long eventId) {
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(ObjectNotFoundException::new);
-        Long views = getViews(event.getCreatedOn(), List.of("/events/" + eventId), false)
+        Long views = getViews(List.of(event), true)
                 .getOrDefault(eventId, 0L);
         return EventMapper.mapToEventFullDto(event, views,
                 requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED));
@@ -104,7 +101,7 @@ public class EventServiceImpl implements EventService {
     public EventFullDto getEvent(Long eventId, String ip, String uri) {
         Event event = eventRepository.findByIdAndEventState(eventId, EventState.PUBLISHED)
                 .orElseThrow(ObjectNotFoundException::new);
-        Long views = getViews(event.getCreatedOn(), List.of("/events/" + eventId), false)
+        Long views = getViews(List.of(event), true)
                 .getOrDefault(eventId, 0L);
         statClient.addHit("ewm-main-service", uri, ip, LocalDateTime.now());
         return EventMapper.mapToEventFullDto(event, views,
@@ -132,7 +129,7 @@ public class EventServiceImpl implements EventService {
         }
         EventMapper.mapToUpdatedEvent(event, updEvent, category);
         event = eventRepository.save(event);
-        Long views = getViews(event.getCreatedOn(), List.of("/events/" + eventId), false)
+        Long views = getViews(List.of(event), true)
                 .getOrDefault(eventId, 0L);
         return EventMapper.mapToEventFullDto(event, views,
                 requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED));
@@ -162,7 +159,7 @@ public class EventServiceImpl implements EventService {
             event.setPublishedOn(LocalDateTime.now());
         }
         event = eventRepository.save(event);
-        Long views = getViews(event.getCreatedOn(), List.of("/events/" + eventId), false)
+        Long views = getViews(List.of(event), true)
                 .getOrDefault(eventId, 0L);
         return EventMapper.mapToEventFullDto(event, views,
                 requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED));
@@ -195,20 +192,14 @@ public class EventServiceImpl implements EventService {
         PageRequest page = PageRequest.of(from / size, size);
         Optional<BooleanExpression> finalCondition = conditions.stream()
                 .reduce(BooleanExpression::and);
-        List<String> uris = new ArrayList<>();
         List<Event> events = finalCondition.map(condition -> eventRepository.findAll(condition, page))
                 .orElseGet(() -> eventRepository.findAll(page))
                 .stream()
-                .peek(e -> uris.add("/events/" + e.getId()))
                 .collect(Collectors.toList());
 
         Map<Long, Long> stats;
         if (!events.isEmpty()) {
-            LocalDateTime minDate = events.stream()
-                    .map(Event::getCreatedOn)
-                    .min((LocalDateTime::compareTo))
-                    .orElseGet(LocalDateTime::now);
-            stats = getViews(minDate, uris, true);
+            stats = getViews(events, true);
         } else {
             stats = Collections.emptyMap();
         }
@@ -270,21 +261,15 @@ public class EventServiceImpl implements EventService {
         PageRequest page = PageRequest.of(from / size, size);
         Optional<BooleanExpression> finalCondition = conditions.stream()
                 .reduce(BooleanExpression::and);
-        List<String> uris = new ArrayList<>();
         List<Event> events = finalCondition.map(condition -> eventRepository.findAll(condition, page))
                 .orElseGet(() -> eventRepository.findAll(page))
                 .stream()
-                .peek(e -> uris.add("/events/" + e.getId()))
                 .collect(Collectors.toList());
 
 
         Map<Long, Long> stats;
         if (!events.isEmpty()) {
-            LocalDateTime minDate = events.stream()
-                    .map(Event::getCreatedOn)
-                    .min((LocalDateTime::compareTo))
-                    .orElseGet(LocalDateTime::now);
-            stats = getViews(minDate, uris, true);
+            stats = getViews(events, true);
         } else {
             stats = Collections.emptyMap();
         }
@@ -310,14 +295,25 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
     }
 
-    private Map<Long, Long> getViews(LocalDateTime minDate, List<String> uris, boolean unique) {
-        ResponseEntity<Object> response = statClient.getStats(minDate, LocalDateTime.now(), uris, unique);
+    private Map<Long, Long> getViews(List<Event> events, boolean unique) {
+        List<String> uris = new ArrayList<>();
+        LocalDateTime minDate = events.stream()
+                .peek(e -> uris.add("/events/" + e.getId()))
+                .map(Event::getCreatedOn)
+                .min((LocalDateTime::compareTo))
+                .orElseGet(LocalDateTime::now);
+        LocalDateTime maxDate = events.stream()
+                .map(Event::getEventDate)
+                .max((LocalDateTime::compareTo))
+                .orElseGet(LocalDateTime::now);
+        ResponseEntity<Object> response = statClient.getStats(minDate, maxDate, uris, unique);
         Map<Long, Long> stats = Collections.emptyMap();
         if (response.getBody() instanceof List<?>) {
+            ObjectMapper objectMapper = new ObjectMapper();
             stats = ((List<?>) response.getBody()).stream()
-                    .map(o -> (StatDto) o)
+                    .map(o -> objectMapper.convertValue(o, StatDto.class))
                     .filter(s -> s.getApp().equals("ewm-main-service"))
-                    .collect(Collectors.toMap(s -> Long.valueOf(s.getUri().split("/")[3]), StatDto::getHits));
+                    .collect(Collectors.toMap(s -> Long.valueOf(s.getUri().split("/")[2]), StatDto::getHits));
         }
         return stats;
     }

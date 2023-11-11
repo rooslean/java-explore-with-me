@@ -101,8 +101,18 @@ public class CompilationServiceImpl implements CompilationService {
 
     }
 
-    private Map<Long, Long> getViews(LocalDateTime minDate, List<String> uris, boolean unique) {
-        ResponseEntity<Object> response = statClient.getStats(minDate, LocalDateTime.now(), uris, unique);
+    private Map<Long, Long> getViews(List<Event> events, boolean unique) {
+        List<String> uris = new ArrayList<>();
+        LocalDateTime minDate = events.stream()
+                .peek(e -> uris.add("/events/" + e.getId()))
+                .map(Event::getCreatedOn)
+                .min((LocalDateTime::compareTo))
+                .orElseGet(LocalDateTime::now);
+        LocalDateTime maxDate = events.stream()
+                .map(Event::getEventDate)
+                .max((LocalDateTime::compareTo))
+                .orElseGet(LocalDateTime::now);
+        ResponseEntity<Object> response = statClient.getStats(minDate, maxDate, uris, unique);
         Map<Long, Long> stats = Collections.emptyMap();
         if (response.getBody() instanceof List<?>) {
             stats = ((List<?>) response.getBody()).stream()
@@ -116,13 +126,7 @@ public class CompilationServiceImpl implements CompilationService {
     private List<EventShortDto> getEventShortDtos(Compilation comp) {
         Map<Long, Long> stats;
         if (!comp.getEvents().isEmpty()) {
-            List<String> uris = new ArrayList<>();
-            LocalDateTime minDate = comp.getEvents().stream()
-                    .peek(e -> uris.add("/events/" + e.getId()))
-                    .map(Event::getCreatedOn)
-                    .min((LocalDateTime::compareTo))
-                    .orElseGet(LocalDateTime::now);
-            stats = getViews(minDate, uris, true);
+            stats = getViews(comp.getEvents(), true);
         } else {
             stats = Collections.emptyMap();
         }
