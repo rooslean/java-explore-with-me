@@ -52,7 +52,7 @@ public class CompilationServiceImpl implements CompilationService {
         PageRequest page = PageRequest.of(from / size, size);
         Page<Compilation> compilations = cond.map(booleanExpression -> compilationRepository
                         .findAll(booleanExpression, page))
-                        .orElseGet(() -> compilationRepository.findAll(page));
+                .orElseGet(() -> compilationRepository.findAll(page));
 
         List<CompilationDto> compilationDtos = new ArrayList<>();
         for (Compilation comp : compilations.getContent()) {
