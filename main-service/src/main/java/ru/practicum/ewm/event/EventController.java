@@ -34,10 +34,12 @@ public class EventController {
                                                          @RequestParam(defaultValue = "10") int size) {
         return new ResponseEntity<>(eventService.getEventsByFilter(users, states, categories, rangeStart, rangeEnd, from, size), HttpStatus.OK);
     }
+
     @PatchMapping("/admin/events/{eventId}")
     public ResponseEntity<EventFullDto> updateEvent(@PathVariable Long eventId, @RequestBody @Valid UpdateEventRequest updateEventRequest) {
         return new ResponseEntity<>(eventService.updateEvent(eventId, updateEventRequest), HttpStatus.OK);
     }
+
     @GetMapping("/events")
     public ResponseEntity<List<EventShortDto>> findEvents(@RequestParam(required = false) String text,
                                                           @RequestParam(required = false) List<Long> categories,
@@ -52,6 +54,7 @@ public class EventController {
         return new ResponseEntity<>(eventService.getEventsByFilter(text, categories, paid,
                 onlyAvailable, sort, rangeStart, rangeEnd, from, size, request.getRemoteAddr(), request.getRequestURI()), HttpStatus.OK);
     }
+
     @GetMapping("/events/{id}")
     public ResponseEntity<EventFullDto> getEvent(@PathVariable Long id, HttpServletRequest request) {
         return new ResponseEntity<>(eventService.getEvent(id, request.getRemoteAddr(), request.getRequestURI()), HttpStatus.OK);

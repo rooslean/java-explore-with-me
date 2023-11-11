@@ -4,7 +4,6 @@ import ru.practicum.ewm.compilation.dto.CompilationDto;
 import ru.practicum.ewm.compilation.dto.NewCompilationDto;
 import ru.practicum.ewm.compilation.dto.UpdateCompilationDto;
 import ru.practicum.ewm.event.Event;
-import ru.practicum.ewm.event.EventMapper;
 import ru.practicum.ewm.event.dto.EventShortDto;
 
 import java.util.List;
@@ -18,6 +17,7 @@ public class CompilationMapper {
                 .pinned(compilation.getPinned())
                 .build();
     }
+
     public static Compilation mapToCompilation(NewCompilationDto newCompilationDto, List<Event> events) {
         return Compilation.builder()
                 .title(newCompilationDto.getTitle())
@@ -25,6 +25,7 @@ public class CompilationMapper {
                 .events(events)
                 .build();
     }
+
     public static void mapToUpdateCompilation(Compilation compilation, UpdateCompilationDto updComp, List<Event> events) {
         if (updComp.getTitle() != null && !updComp.getTitle().isEmpty()) {
             compilation.setTitle(updComp.getTitle());

@@ -20,6 +20,7 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     boolean existsByRequesterIdAndEventId(Long userId, Long eventId);
 
     Optional<Request> findByIdAndRequesterId(Long requestId, Long userId);
+
     Optional<Request> findByRequesterId(Long userId);
 
     @Query("SELECT NEW ru.practicum.ewm.request.dto.RequestCountByEventId(req.event.id, COUNT(req.id)) " +

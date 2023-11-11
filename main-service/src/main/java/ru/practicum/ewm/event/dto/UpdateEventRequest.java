@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.validator.constraints.Length;
-import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.ewm.event.EventLocation;
 import ru.practicum.ewm.event.EventStateAction;
 

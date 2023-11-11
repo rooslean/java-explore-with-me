@@ -16,9 +16,7 @@ import ru.practicum.ewm.compilation.dto.NewCompilationDto;
 import ru.practicum.ewm.compilation.dto.UpdateCompilationDto;
 
 import javax.validation.Valid;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @AllArgsConstructor
@@ -31,19 +29,23 @@ public class CompilationController {
                                                                 @RequestParam(required = false) Boolean pinned) {
         return new ResponseEntity<>(compilationService.getCompilations(from, size, pinned), HttpStatus.OK);
     }
+
     @GetMapping("/compilations/{compId}")
     public ResponseEntity<CompilationDto> getCompilation(@PathVariable Long compId) {
         return new ResponseEntity<>(compilationService.getCompilation(compId), HttpStatus.OK);
     }
+
     @PostMapping("/admin/compilations")
     public ResponseEntity<CompilationDto> addCompilation(@RequestBody @Valid NewCompilationDto newCompilationDto) {
         return new ResponseEntity<>(compilationService.addCompilation(newCompilationDto), HttpStatus.CREATED);
     }
+
     @DeleteMapping("/admin/compilations/{compId}")
     public ResponseEntity<Object> deleteCompilation(@PathVariable Long compId) {
         compilationService.deleteCompilation(compId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
     @PatchMapping("/admin/compilations/{compId}")
     public ResponseEntity<CompilationDto> updateCompilation(@PathVariable Long compId,
                                                             @RequestBody @Valid UpdateCompilationDto updateCompilationDto) {

@@ -44,6 +44,7 @@ public class ErrorHandler {
         log.warn(e.getMessage());
         return new ApiError("Ошибка при создании", e.getMessage(), HttpStatus.CONFLICT.toString(), LocalDateTime.now());
     }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleConflictError(final JDBCException e) {
@@ -57,20 +58,4 @@ public class ErrorHandler {
         log.warn(e.getMessage());
         return new ApiError("Некорректный запрос", e.getMessage(), HttpStatus.BAD_REQUEST.toString(), LocalDateTime.now());
     }
-
-/*    @ExceptionHandler({ObjectNotValidException.class})
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleObjectNotValid(final RuntimeException e) {
-        log.info(e.getMessage(), e);
-        return new ErrorResponse("Невалидные данные", e.getMessage());
-    }
-
-
-
-    @ExceptionHandler({NoRightsForUpdateException.class})
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ErrorResponse handleNoRightsForUpdate(final RuntimeException e) {
-        log.info(e.getMessage(), e);
-        return new ErrorResponse("Нет доступа", e.getMessage());
-    }*/
 }
