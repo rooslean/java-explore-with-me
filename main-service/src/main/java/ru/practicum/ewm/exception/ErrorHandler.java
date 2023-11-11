@@ -2,14 +2,17 @@ package ru.practicum.ewm.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.JDBCException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 
 
 @RestControllerAdvice
@@ -32,6 +35,13 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleMissingReqParamError(final MissingServletRequestParameterException e) {
+        log.warn(e.getMessage());
+        return new ApiError("Отсутствует обязательный параметр", e.getMessage(), HttpStatus.BAD_REQUEST.toString(), LocalDateTime.now());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiError handleTypeMismatchError(final MethodArgumentTypeMismatchException e) {
         log.warn(e.getMessage());
         return new ApiError("Unknown " + e.getName() + ": " + e.getValue(), e.getMessage(),
@@ -45,11 +55,11 @@ public class ErrorHandler {
         return new ApiError("Ошибка при создании", e.getMessage(), HttpStatus.CONFLICT.toString(), LocalDateTime.now());
     }
 
-    @ExceptionHandler
+    @ExceptionHandler({DataAccessException.class, JDBCException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ApiError handleConflictError(final JDBCException e) {
+    public ApiError handleConflictError(final RuntimeException e) {
         log.warn(e.getMessage());
-        return new ApiError("Ошибка при записи в БД", e.getMessage(), HttpStatus.CONFLICT.toString(), LocalDateTime.now());
+        return new ApiError("Ошибка при выполнении SQL запроса", e.getMessage(), HttpStatus.CONFLICT.toString(), LocalDateTime.now());
     }
 
     @ExceptionHandler
@@ -57,5 +67,13 @@ public class ErrorHandler {
     public ApiError handleBadRequestError(final BadRequestException e) {
         log.warn(e.getMessage());
         return new ApiError("Некорректный запрос", e.getMessage(), HttpStatus.BAD_REQUEST.toString(), LocalDateTime.now());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ApiError handleBadRequestError(final Throwable e) {
+        log.warn(e.getMessage());
+        log.warn(Arrays.toString(e.getStackTrace()));
+        return new ApiError("Ошибка сервера", e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.toString(), LocalDateTime.now());
     }
 }
