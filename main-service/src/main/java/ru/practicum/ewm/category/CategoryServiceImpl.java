@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.ObjectNotFoundException;
 
 import java.util.List;
@@ -24,11 +25,12 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
     public CategoryDto updateCategory(Long categoryId, CategoryDto categoryDto) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(ObjectNotFoundException::new);
         category.setName(categoryDto.getName());
-        categoryDto = CategoryMapper.mapToCategoryDto(categoryRepository.saveAndFlush(category));
+        categoryDto = CategoryMapper.mapToCategoryDto(categoryRepository.save(category));
         return categoryDto;
     }
 
