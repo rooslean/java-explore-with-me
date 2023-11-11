@@ -34,6 +34,6 @@ public class EventFullDto {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime publishedOn;
     Boolean requestModeration;
-    Integer confirmedRequests;
+    Long confirmedRequests;
     EventState state;
 }

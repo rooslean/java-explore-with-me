@@ -25,5 +25,5 @@ public class EventShortDto {
     CategoryDto category;
     Boolean paid;
     Long views;
-    Integer confirmedRequests;
+    Long confirmedRequests;
 }

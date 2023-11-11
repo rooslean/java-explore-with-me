@@ -1,6 +1,8 @@
 package ru.practicum.ewm.event;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberTemplate;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,10 @@ import ru.practicum.ewm.event.dto.UpdateEventRequest;
 import ru.practicum.ewm.exception.BadRequestException;
 import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.ObjectNotFoundException;
+import ru.practicum.ewm.request.QRequest;
+import ru.practicum.ewm.request.RequestRepository;
+import ru.practicum.ewm.request.RequestStatus;
+import ru.practicum.ewm.request.dto.RequestCountByEventId;
 import ru.practicum.ewm.stat.StatDto;
 import ru.practicum.ewm.user.User;
 import ru.practicum.ewm.user.UserRepository;
@@ -36,6 +42,7 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final RequestRepository requestRepository;
     private final StatClient statClient;
 
     @Override
@@ -56,9 +63,16 @@ public class EventServiceImpl implements EventService {
         } else {
             stats = Collections.emptyMap();
         }
-        //TODO: тут будет нужен вызов метода с подсчетом подтвержденных заявок
+
+        Map<Long, Long> confirmedRequests = requestRepository.countByUser(events.stream()
+                        .map(Event::getId)
+                        .collect(Collectors.toList()), RequestStatus.CONFIRMED)
+                .stream()
+                .collect(Collectors.toMap(RequestCountByEventId::getEventId, RequestCountByEventId::getCount));
+
         return events.stream()
-                .map(e -> EventMapper.mapToEventShortDto(e, stats.getOrDefault(e.getId(), 0L)))
+                .map(e -> EventMapper.mapToEventShortDto(e, stats.getOrDefault(e.getId(), 0L),
+                        confirmedRequests.getOrDefault(e.getId(), 0L)))
                 .collect(Collectors.toList());
     }
 
@@ -73,7 +87,7 @@ public class EventServiceImpl implements EventService {
         Category category = categoryRepository.findById(newEventDto.getCategory())
                 .orElseThrow(ObjectNotFoundException::new);
         Event event = EventMapper.mapToEvent(user, newEventDto, category);
-        return EventMapper.mapToEventFullDto(eventRepository.save(event), 0L);
+        return EventMapper.mapToEventFullDto(eventRepository.save(event), 0L, 0L);
     }
 
     @Override
@@ -82,19 +96,19 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(ObjectNotFoundException::new);
         Long views = getViews(event.getCreatedOn(), List.of("/events/" + eventId), false)
                 .getOrDefault(eventId, 0L);
-        //TODO: тут будет нужен вызов метода с подсчетом подтвержденных заявок
-        return EventMapper.mapToEventFullDto(event, views);
+        return EventMapper.mapToEventFullDto(event, views,
+                requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED));
     }
 
     @Override
     public EventFullDto getEvent(Long eventId, String ip, String uri) {
-        //TODO: тут будет нужен вызов метода с подсчетом подтвержденных заявок
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(ObjectNotFoundException::new);
         Long views = getViews(event.getCreatedOn(), List.of("/events/" + eventId), false)
                 .getOrDefault(eventId, 0L);
         statClient.addHit("ewm-main-service", uri, ip, LocalDateTime.now());
-        return EventMapper.mapToEventFullDto(event, views);
+        return EventMapper.mapToEventFullDto(event, views,
+                requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED));
     }
 
     @Override
@@ -108,7 +122,6 @@ public class EventServiceImpl implements EventService {
         if (!EventState.PENDING.equals(event.getEventState()) && !EventState.REJECTED.equals(event.getEventState())) {
             throw new ConflictException();
         }
-        //TODO: возможно надо проверять чтобы StateAction был подходящим
         if (updEvent.getEventDate() != null && LocalDateTime.now().plusHours(2).isAfter(updEvent.getEventDate())) {
             throw new ConflictException();
         }
@@ -121,8 +134,8 @@ public class EventServiceImpl implements EventService {
         event = eventRepository.save(event);
         Long views = getViews(event.getCreatedOn(), List.of("/events/" + eventId), false)
                 .getOrDefault(eventId, 0L);
-        //TODO: тут будет нужен вызов метода с подсчетом подтвержденных заявок
-        return EventMapper.mapToEventFullDto(event, views);
+        return EventMapper.mapToEventFullDto(event, views,
+                requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED));
     }
 
     @Override
@@ -151,8 +164,8 @@ public class EventServiceImpl implements EventService {
         event = eventRepository.save(event);
         Long views = getViews(event.getCreatedOn(), List.of("/events/" + eventId), false)
                 .getOrDefault(eventId, 0L);
-        //TODO: тут будет нужен вызов метода с подсчетом подтвержденных заявок
-        return EventMapper.mapToEventFullDto(event, views);
+        return EventMapper.mapToEventFullDto(event, views,
+                requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED));
     }
 
     @Override
@@ -199,9 +212,15 @@ public class EventServiceImpl implements EventService {
         } else {
             stats = Collections.emptyMap();
         }
-        //TODO: тут будет нужен вызов метода с подсчетом подтвержденных заявок
+        Map<Long, Long> confirmedRequests = requestRepository.countByUser(events.stream()
+                        .map(Event::getId)
+                        .collect(Collectors.toList()), RequestStatus.CONFIRMED)
+                .stream()
+                .collect(Collectors.toMap(RequestCountByEventId::getEventId, RequestCountByEventId::getCount));
+
         return events.stream()
-                .map(e -> EventMapper.mapToEventFullDto(e, stats.getOrDefault(e.getId(), 0L)))
+                .map(e -> EventMapper.mapToEventFullDto(e, stats.getOrDefault(e.getId(), 0L),
+                        confirmedRequests.getOrDefault(e.getId(), 0L)))
                 .collect(Collectors.toList());
     }
 
@@ -224,7 +243,16 @@ public class EventServiceImpl implements EventService {
             conditions.add(qEvent.eventDate.after(LocalDateTime.now()));
         }
         if (onlyAvailable) {
-            //TODO: Добавить тут проверку на неисчерпанный лимит заявок
+            QRequest qRequest = QRequest.request;
+
+            NumberTemplate<Long> acceptedRequestsCount = Expressions.numberTemplate(Long.class,
+                    "coalesce(count({0}), 0)", qRequest.id);
+
+            BooleanExpression maxRequestsCondition = qRequest.event.eq(qEvent)
+                    .and(qRequest.status.eq(RequestStatus.CONFIRMED))
+                    .and(acceptedRequestsCount.lt(qEvent.participantLimit));
+
+            conditions.add(maxRequestsCondition);
         }
         if (text != null && !text.isEmpty()) {
             conditions.add(qEvent.annotation.containsIgnoreCase(text)
@@ -269,9 +297,15 @@ public class EventServiceImpl implements EventService {
         } else {
             comparator = Comparator.comparing(EventShortDto::getEventDate);
         }
-        //TODO: тут будет нужен вызов метода с подсчетом подтвержденных заявок
+        Map<Long, Long> confirmedRequests = requestRepository.countByUser(events.stream()
+                        .map(Event::getId)
+                        .collect(Collectors.toList()), RequestStatus.CONFIRMED)
+                .stream()
+                .collect(Collectors.toMap(RequestCountByEventId::getEventId, RequestCountByEventId::getCount));
+
         return events.stream()
-                .map(e -> EventMapper.mapToEventShortDto(e, stats.getOrDefault(e.getId(), 0L)))
+                .map(e -> EventMapper.mapToEventShortDto(e, stats.getOrDefault(e.getId(), 0L),
+                        confirmedRequests.getOrDefault(e.getId(), 0L)))
                 .sorted(comparator)
                 .collect(Collectors.toList());
     }

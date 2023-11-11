@@ -12,7 +12,7 @@ import ru.practicum.ewm.user.UserMapper;
 import java.time.LocalDateTime;
 
 public class EventMapper {
-    public static EventFullDto mapToEventFullDto(Event event, Long views) {
+    public static EventFullDto mapToEventFullDto(Event event, Long views, Long confirmedRequests) {
         return EventFullDto.builder()
                 .id(event.getId())
                 .title(event.getTitle())
@@ -22,7 +22,7 @@ public class EventMapper {
                 .initiator(UserMapper.mapToUserShortDto(event.getInitiator()))
                 .category(CategoryMapper.mapToCategoryDto(event.getCategory()))
                 .paid(event.getPaid())
-                .views(views) //TODO: придумать как доставать статистику из сервера статистики
+                .views(views)
                 .createdOn(event.getCreatedOn())
                 .location(EventLocation.builder()
                         .lat(event.getLatitude())
@@ -30,12 +30,12 @@ public class EventMapper {
                         .build())
                 .publishedOn(event.getPublishedOn())
                 .requestModeration(event.getRequestModeration())
-                .confirmedRequests(0)//TODO: надо придумать как доставать
+                .confirmedRequests(confirmedRequests)
                 .state(event.getEventState())
                 .build();
     }
 
-    public static EventShortDto mapToEventShortDto(Event event, Long views) {
+    public static EventShortDto mapToEventShortDto(Event event, Long views, Long confirmedRequests) {
         return EventShortDto.builder()
                 .id(event.getId())
                 .title(event.getTitle())
@@ -44,8 +44,8 @@ public class EventMapper {
                 .initiator(UserMapper.mapToUserShortDto(event.getInitiator()))
                 .category(CategoryMapper.mapToCategoryDto(event.getCategory()))
                 .paid(event.getPaid())
-                .views(views) //TODO: придумать как доставать статистику из сервера статистики
-                .confirmedRequests(0)//TODO: надо придумать как доставать
+                .views(views)
+                .confirmedRequests(confirmedRequests)
                 .build();
     }
 

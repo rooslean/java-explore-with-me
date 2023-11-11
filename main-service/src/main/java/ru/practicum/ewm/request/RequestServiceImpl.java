@@ -93,7 +93,7 @@ public class RequestServiceImpl implements RequestService {
         if (event.getInitiator().getId().equals(user.getId())
                 || !EventState.PUBLISHED.equals(event.getEventState())
                 || isLimitReached
-                || requestRepository.existsByUserIdAndEventId(userId, eventId)) {
+                || requestRepository.existsByRequesterIdAndEventId(userId, eventId)) {
             throw new ConflictException();
         }
         Request request = requestRepository.save(Request.builder()
