@@ -52,6 +52,7 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleConflictError(final ConflictException e) {
         log.warn(e.getMessage());
+        log.warn(Arrays.toString(e.getStackTrace()));
         return new ApiError("Ошибка при создании", e.getMessage(), HttpStatus.CONFLICT.toString(), LocalDateTime.now());
     }
 

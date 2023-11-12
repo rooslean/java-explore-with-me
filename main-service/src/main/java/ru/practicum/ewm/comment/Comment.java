@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import ru.practicum.ewm.event.Event;
 import ru.practicum.ewm.user.User;
 
@@ -37,5 +39,8 @@ public class Comment {
     @JoinColumn(name = "author_id")
     User author;
     String text;
+    @CreationTimestamp
     LocalDateTime created;
+    @UpdateTimestamp
+    LocalDateTime updated;
 }

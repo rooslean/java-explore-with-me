@@ -67,6 +67,7 @@ create TABLE IF NOT EXISTS comments (
     author_id BIGINT,
     text VARCHAR(5000),
     created timestamp without time zone,
+    updated timestamp without time zone,
     CONSTRAINT fk_comments_to_events FOREIGN KEY(event_id) REFERENCES events(id),
     CONSTRAINT fk_comments_to_users FOREIGN KEY(author_id) REFERENCES users(id)
     );
