@@ -5,8 +5,6 @@ import ru.practicum.ewm.comment.dto.NewCommentDto;
 import ru.practicum.ewm.event.Event;
 import ru.practicum.ewm.user.User;
 
-import java.time.LocalDateTime;
-
 public class CommentMapper {
     public static Comment mapToComment(NewCommentDto newCommentDto, User author, Event event) {
         return Comment.builder()
