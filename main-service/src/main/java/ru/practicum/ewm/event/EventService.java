@@ -1,6 +1,7 @@
 package ru.practicum.ewm.event;
 
 import ru.practicum.ewm.event.dto.EventFullDto;
+import ru.practicum.ewm.event.dto.EventFullDtoWithComments;
 import ru.practicum.ewm.event.dto.EventShortDto;
 import ru.practicum.ewm.event.dto.NewEventDto;
 import ru.practicum.ewm.event.dto.UpdateEventRequest;
@@ -13,9 +14,9 @@ public interface EventService {
 
     EventFullDto createEvent(Long userId, NewEventDto newEventDto);
 
-    EventFullDto getUserEvent(Long userId, Long eventId);
+    EventFullDtoWithComments getUserEvent(Long userId, Long eventId, int from, int size);
 
-    EventFullDto getEvent(Long eventId, String ip, String uri);
+    EventFullDtoWithComments getEvent(Long eventId, String ip, String uri, int from, int size);
 
     EventFullDto updateEvent(Long userId, Long eventId, UpdateEventRequest updateEventRequest);
 

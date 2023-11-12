@@ -43,4 +43,5 @@ public class EventFullDto {
     Long confirmedRequests;
     EventState state;
     Integer participantLimit;
+    Long comments;
 }

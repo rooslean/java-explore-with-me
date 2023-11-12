@@ -9,19 +9,24 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.ewm.category.CategoryDto;
+import ru.practicum.ewm.comment.dto.CommentDto;
+import ru.practicum.ewm.event.EventLocation;
+import ru.practicum.ewm.event.EventState;
 import ru.practicum.ewm.user.UserShortDto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class EventShortDto {
+public class EventFullDtoWithComments {
     Long id;
     String title;
     String annotation;
+    String description;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime eventDate;
@@ -29,6 +34,16 @@ public class EventShortDto {
     CategoryDto category;
     Boolean paid;
     Long views;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    LocalDateTime createdOn;
+    EventLocation location;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    LocalDateTime publishedOn;
+    Boolean requestModeration;
     Long confirmedRequests;
-    Long comments;
+    EventState state;
+    Integer participantLimit;
+    List<CommentDto> comments;
 }

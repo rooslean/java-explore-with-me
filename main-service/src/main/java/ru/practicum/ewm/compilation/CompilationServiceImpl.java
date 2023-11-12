@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.client.StatClient;
+import ru.practicum.ewm.comment.CommentRepository;
+import ru.practicum.ewm.comment.dto.CountCommentByEvent;
 import ru.practicum.ewm.compilation.dto.CompilationDto;
 import ru.practicum.ewm.compilation.dto.NewCompilationDto;
 import ru.practicum.ewm.compilation.dto.UpdateCompilationDto;
@@ -36,6 +38,7 @@ public class CompilationServiceImpl implements CompilationService {
     private final CompilationRepository compilationRepository;
     private final RequestRepository requestRepository;
     private final EventRepository eventRepository;
+    private final CommentRepository commentRepository;
     private final StatClient statClient;
 
     @Override
@@ -130,14 +133,23 @@ public class CompilationServiceImpl implements CompilationService {
         } else {
             stats = Collections.emptyMap();
         }
-        Map<Long, Long> confirmedRequests = requestRepository.countByUser(comp.getEvents().stream()
-                        .map(Event::getId)
-                        .collect(Collectors.toList()), RequestStatus.CONFIRMED)
+
+        List<Long> eventIds = comp.getEvents().stream()
+                .map(Event::getId)
+                .collect(Collectors.toList());
+
+        Map<Long, Long> confirmedRequests = requestRepository.countByUser(eventIds, RequestStatus.CONFIRMED)
                 .stream()
                 .collect(Collectors.toMap(RequestCountByEventId::getEventId, RequestCountByEventId::getCount));
+
+        Map<Long, Long> commentsCount = commentRepository.countCommentForEvents(eventIds)
+                .stream()
+                .collect(Collectors.toMap(CountCommentByEvent::getEventId, CountCommentByEvent::getCount));
+
         return comp.getEvents().stream()
                 .map(e -> EventMapper.mapToEventShortDto(e, stats.getOrDefault(e.getId(), 0L),
-                        confirmedRequests.getOrDefault(e.getId(), 0L)))
+                        confirmedRequests.getOrDefault(e.getId(), 0L),
+                        commentsCount.getOrDefault(e.getId(), 0L)))
                 .collect(Collectors.toList());
     }
 }

@@ -10,7 +10,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.ewm.comment.CommentService;
+import ru.practicum.ewm.comment.CommentSort;
+import ru.practicum.ewm.comment.dto.CommentDto;
 import ru.practicum.ewm.event.dto.EventFullDto;
+import ru.practicum.ewm.event.dto.EventFullDtoWithComments;
 import ru.practicum.ewm.event.dto.EventShortDto;
 import ru.practicum.ewm.event.dto.UpdateEventRequest;
 
@@ -23,6 +27,7 @@ import java.util.List;
 @AllArgsConstructor
 public class EventController {
     private final EventService eventService;
+    private final CommentService commentService;
 
     @GetMapping("/admin/events")
     public ResponseEntity<List<EventFullDto>> findEvents(@RequestParam(required = false) List<Long> users,
@@ -56,7 +61,17 @@ public class EventController {
     }
 
     @GetMapping("/events/{id}")
-    public ResponseEntity<EventFullDto> getEvent(@PathVariable Long id, HttpServletRequest request) {
-        return new ResponseEntity<>(eventService.getEvent(id, request.getRemoteAddr(), request.getRequestURI()), HttpStatus.OK);
+    public ResponseEntity<EventFullDtoWithComments> getEvent(@PathVariable Long id, HttpServletRequest request,
+                                                             @RequestParam(defaultValue = "0") int from,
+                                                             @RequestParam(defaultValue = "10") int size) {
+        return new ResponseEntity<>(eventService.getEvent(id, request.getRemoteAddr(), request.getRequestURI(), from, size), HttpStatus.OK);
     }
+
+    @GetMapping("/events/{eventId}/comments")
+    public ResponseEntity<List<CommentDto>> getEventComments(@PathVariable Long eventId, @RequestParam(defaultValue = "0") int from,
+                                                             @RequestParam(defaultValue = "10") int size,
+                                                             @RequestParam(defaultValue = "CREATED_DESC") CommentSort sort) {
+        return new ResponseEntity<>(commentService.getEventComments(eventId, from, size, sort), HttpStatus.OK);
+    }
+
 }

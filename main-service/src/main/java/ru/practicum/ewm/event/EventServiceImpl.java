@@ -13,7 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.category.Category;
 import ru.practicum.ewm.category.CategoryRepository;
 import ru.practicum.ewm.client.StatClient;
+import ru.practicum.ewm.comment.CommentMapper;
+import ru.practicum.ewm.comment.CommentRepository;
+import ru.practicum.ewm.comment.dto.CommentDto;
+import ru.practicum.ewm.comment.dto.CountCommentByEvent;
 import ru.practicum.ewm.event.dto.EventFullDto;
+import ru.practicum.ewm.event.dto.EventFullDtoWithComments;
 import ru.practicum.ewm.event.dto.EventShortDto;
 import ru.practicum.ewm.event.dto.NewEventDto;
 import ru.practicum.ewm.event.dto.UpdateEventRequest;
@@ -45,6 +50,7 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final RequestRepository requestRepository;
+    private final CommentRepository commentRepository;
     private final StatClient statClient;
 
     @Override
@@ -60,15 +66,20 @@ public class EventServiceImpl implements EventService {
             stats = Collections.emptyMap();
         }
 
-        Map<Long, Long> confirmedRequests = requestRepository.countByUser(events.stream()
-                        .map(Event::getId)
-                        .collect(Collectors.toList()), RequestStatus.CONFIRMED)
+        List<Long> eventIds = events.stream()
+                .map(Event::getId)
+                .collect(Collectors.toList());
+        Map<Long, Long> confirmedRequests = requestRepository.countByUser(eventIds, RequestStatus.CONFIRMED)
                 .stream()
                 .collect(Collectors.toMap(RequestCountByEventId::getEventId, RequestCountByEventId::getCount));
 
+        Map<Long, Long> commentsCount = commentRepository.countCommentForEvents(eventIds)
+                .stream()
+                .collect(Collectors.toMap(CountCommentByEvent::getEventId, CountCommentByEvent::getCount));
         return events.stream()
                 .map(e -> EventMapper.mapToEventShortDto(e, stats.getOrDefault(e.getId(), 0L),
-                        confirmedRequests.getOrDefault(e.getId(), 0L)))
+                        confirmedRequests.getOrDefault(e.getId(), 0L),
+                        commentsCount.getOrDefault(e.getId(), 0L)))
                 .collect(Collectors.toList());
     }
 
@@ -87,28 +98,39 @@ public class EventServiceImpl implements EventService {
         Category category = categoryRepository.findById(newEventDto.getCategory())
                 .orElseThrow(ObjectNotFoundException::new);
         Event event = EventMapper.mapToEvent(user, newEventDto, category);
-        return EventMapper.mapToEventFullDto(eventRepository.save(event), 0L, 0L);
+        return EventMapper.mapToEventFullDto(eventRepository.save(event), 0L, 0L, 0L);
     }
 
     @Override
-    public EventFullDto getUserEvent(Long userId, Long eventId) {
+    public EventFullDtoWithComments getUserEvent(Long userId, Long eventId, int from, int size) {
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(ObjectNotFoundException::new);
         Long views = getViews(List.of(event), true)
                 .getOrDefault(eventId, 0L);
-        return EventMapper.mapToEventFullDto(event, views,
-                requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED));
+        PageRequest pageRequest = PageRequest.of(from / size, size, Sort.by("created").descending());
+        List<CommentDto> comments = commentRepository.findByEventId(eventId, pageRequest)
+                .stream()
+                .map(CommentMapper::mapToCommentDto)
+                .collect(Collectors.toList());
+        return EventMapper.mapToEventFullDtoWithComments(event, views,
+                requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED),
+                comments);
     }
 
     @Override
-    public EventFullDto getEvent(Long eventId, String ip, String uri) {
+    public EventFullDtoWithComments getEvent(Long eventId, String ip, String uri, int from, int size) {
         Event event = eventRepository.findByIdAndEventState(eventId, EventState.PUBLISHED)
                 .orElseThrow(ObjectNotFoundException::new);
         Long views = getViews(List.of(event), true)
                 .getOrDefault(eventId, 0L);
         statClient.addHit("ewm-main-service", uri, ip, LocalDateTime.now());
-        return EventMapper.mapToEventFullDto(event, views,
-                requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED));
+        PageRequest pageRequest = PageRequest.of(from / size, size, Sort.by("created").descending());
+        List<CommentDto> comments = commentRepository.findByEventId(eventId, pageRequest)
+                .stream()
+                .map(CommentMapper::mapToCommentDto)
+                .collect(Collectors.toList());
+        return EventMapper.mapToEventFullDtoWithComments(event, views,
+                requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED), comments);
     }
 
     @Override
@@ -134,8 +156,9 @@ public class EventServiceImpl implements EventService {
         event = eventRepository.save(event);
         Long views = getViews(List.of(event), true)
                 .getOrDefault(eventId, 0L);
+        long comments = commentRepository.countByEventId(eventId);
         return EventMapper.mapToEventFullDto(event, views,
-                requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED));
+                requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED), comments);
     }
 
     @Override
@@ -171,8 +194,9 @@ public class EventServiceImpl implements EventService {
         event = eventRepository.save(event);
         Long views = getViews(List.of(event), true)
                 .getOrDefault(eventId, 0L);
+        long comments = commentRepository.countByEventId(eventId);
         return EventMapper.mapToEventFullDto(event, views,
-                requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED));
+                requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED), comments);
     }
 
     @Override
@@ -199,7 +223,7 @@ public class EventServiceImpl implements EventService {
         if (categoryIds != null && !categoryIds.isEmpty()) {
             conditions.add(qEvent.category.id.in(categoryIds));
         }
-        PageRequest page = PageRequest.of(from / size, size);
+        PageRequest page = PageRequest.of(from / size, size, Sort.by("id").descending());
         Optional<BooleanExpression> finalCondition = conditions.stream()
                 .reduce(BooleanExpression::and);
         List<Event> events = finalCondition.map(condition -> eventRepository.findAll(condition, page))
@@ -213,15 +237,22 @@ public class EventServiceImpl implements EventService {
         } else {
             stats = Collections.emptyMap();
         }
-        Map<Long, Long> confirmedRequests = requestRepository.countByUser(events.stream()
-                        .map(Event::getId)
-                        .collect(Collectors.toList()), RequestStatus.CONFIRMED)
+
+        List<Long> eventIds = events.stream()
+                .map(Event::getId)
+                .collect(Collectors.toList());
+        Map<Long, Long> confirmedRequests = requestRepository.countByUser(eventIds, RequestStatus.CONFIRMED)
                 .stream()
                 .collect(Collectors.toMap(RequestCountByEventId::getEventId, RequestCountByEventId::getCount));
 
+        Map<Long, Long> commentsCount = commentRepository.countCommentForEvents(eventIds)
+                .stream()
+                .collect(Collectors.toMap(CountCommentByEvent::getEventId, CountCommentByEvent::getCount));
+
         return events.stream()
                 .map(e -> EventMapper.mapToEventFullDto(e, stats.getOrDefault(e.getId(), 0L),
-                        confirmedRequests.getOrDefault(e.getId(), 0L)))
+                        confirmedRequests.getOrDefault(e.getId(), 0L),
+                        commentsCount.getOrDefault(e.getId(), 0L)))
                 .collect(Collectors.toList());
     }
 
@@ -297,22 +328,29 @@ public class EventServiceImpl implements EventService {
         statClient.addHit("ewm-main-service", uri, ip, LocalDateTime.now());
 
 
-        Map<Long, Long> confirmedRequests = requestRepository.countByUser(events.stream()
-                        .map(Event::getId)
-                        .collect(Collectors.toList()), RequestStatus.CONFIRMED)
+        List<Long> eventIds = events.stream()
+                .map(Event::getId)
+                .collect(Collectors.toList());
+        Map<Long, Long> confirmedRequests = requestRepository.countByUser(eventIds, RequestStatus.CONFIRMED)
                 .stream()
                 .collect(Collectors.toMap(RequestCountByEventId::getEventId, RequestCountByEventId::getCount));
+
+        Map<Long, Long> commentsCount = commentRepository.countCommentForEvents(eventIds)
+                .stream()
+                .collect(Collectors.toMap(CountCommentByEvent::getEventId, CountCommentByEvent::getCount));
 
         List<EventShortDto> eventShortDtos = Collections.emptyList();
         if (EventSort.EVENT_DATE.equals(sort)) {
             eventShortDtos = events.stream()
                     .map(e -> EventMapper.mapToEventShortDto(e, stats.getOrDefault(e.getId(), 0L),
-                            confirmedRequests.getOrDefault(e.getId(), 0L)))
+                            confirmedRequests.getOrDefault(e.getId(), 0L),
+                            commentsCount.getOrDefault(e.getId(), 0L)))
                     .collect(Collectors.toList());
         } else {
             eventShortDtos = events.stream()
                     .map(e -> EventMapper.mapToEventShortDto(e, stats.getOrDefault(e.getId(), 0L),
-                            confirmedRequests.getOrDefault(e.getId(), 0L)))
+                            confirmedRequests.getOrDefault(e.getId(), 0L),
+                            commentsCount.getOrDefault(e.getId(), 0L)))
                     .sorted(comparator)
                     .collect(Collectors.toList());
         }
