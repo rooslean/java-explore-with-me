@@ -65,7 +65,7 @@ create TABLE IF NOT EXISTS comments (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     event_id BIGINT,
     author_id BIGINT,
-    text VARCHAR(1000),
+    text VARCHAR(5000),
     created timestamp without time zone,
     CONSTRAINT fk_comments_to_events FOREIGN KEY(event_id) REFERENCES events(id),
     CONSTRAINT fk_comments_to_users FOREIGN KEY(author_id) REFERENCES users(id)
