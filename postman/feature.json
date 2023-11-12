@@ -1,0 +1,1258 @@
+{
+  "collection": {
+    "info": {
+      "_postman_id": "60d5bb3f-18cc-482d-a96a-627fd3bcb97f",
+      "name": "Test Explore With Me - Feature Comments",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+      "updatedAt": "2023-11-12T11:10:30.000Z",
+      "uid": "21546980-60d5bb3f-18cc-482d-a96a-627fd3bcb97f"
+    },
+    "item": [
+      {
+        "name": "Добавление пользователя",
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "0a22d656-9f7b-44a2-90ad-c5e9c4b0f4c6",
+              "exec": [
+                "",
+                "pm.test(\"Response status code is 201\", function () {",
+                "    pm.response.to.have.status(201);",
+                "});",
+                "",
+                "",
+                "pm.test(\"Response has required fields - id, name, and email\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData).to.be.an('object');",
+                "    pm.expect(responseData.id).to.exist.and.to.be.a('number');",
+                "    pm.expect(responseData.name).to.exist.and.to.be.a('string');",
+                "    pm.expect(responseData.email).to.exist.and.to.be.a('string');",
+                "});",
+                "",
+                "",
+                "pm.test(\"Name is a non-empty string\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData).to.be.an('object');",
+                "    pm.expect(responseData.name).to.exist.and.to.be.a('string').and.to.have.lengthOf.at.least(1, \"Name should not be empty\");",
+                "});",
+                "",
+                "",
+                "pm.test(\"Email is in a valid format\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData).to.be.an('object');",
+                "    pm.expect(responseData.email).to.exist.and.to.match(/^[\\w-]+(\\.[\\w-]+)*@([\\w-]+\\.)+[a-zA-Z]{2,7}$/);",
+                "});",
+                "",
+                "",
+                "pm.test(\"Response time is within an acceptable range\", function () {",
+                "    pm.expect(pm.response.responseTime).to.be.below(1000);",
+                "});",
+                "",
+                "// Stores the userId in an environment or global variable",
+                "var userId = pm.response.json().id;",
+                "pm.environment.set(\"userId\", userId);"
+              ],
+              "type": "text/javascript"
+            }
+          }
+        ],
+        "id": "5b64e452-4896-4814-8494-3761768cd7d5",
+        "protocolProfileBehavior": {
+          "disableBodyPruning": true
+        },
+        "request": {
+          "method": "POST",
+          "header": [
+
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\"name\":\"Jonh Smith\",\"email\":\"jonh.smith@hotmail.com\"}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          },
+          "url": {
+            "raw": "{{baseUrl}}/admin/users",
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "path": [
+              "admin",
+              "users"
+            ]
+          }
+        },
+        "response": [
+
+        ],
+        "uid": "21546980-5b64e452-4896-4814-8494-3761768cd7d5"
+      },
+      {
+        "name": "Добавлении категории",
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "4c93cd1a-2f3b-474b-9976-484150de85a7",
+              "exec": [
+                "",
+                "pm.test(\"Response status code is 201\", function () {",
+                "    pm.response.to.have.status(201);",
+                "});",
+                "",
+                "",
+                "pm.test(\"Response has the required fields - id and name\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData).to.be.an('object');",
+                "    pm.expect(responseData.id).to.exist.and.to.be.a('number');",
+                "    pm.expect(responseData.name).to.exist.and.to.be.a('string');",
+                "});",
+                "",
+                "",
+                "pm.test(\"Name field is a non-empty string\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData.name).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Value should not be empty\");",
+                "});",
+                "",
+                "",
+                "pm.test(\"ID field is a non-negative integer\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData.id).to.exist.and.to.be.a('number');",
+                "    pm.expect(responseData.id).to.be.at.least(0, \"ID should be a non-negative integer\");",
+                "});",
+                "",
+                "",
+                "pm.test(\"Response time is in an acceptable range\", function () {",
+                "    pm.expect(pm.response.responseTime).to.be.below(1000);",
+                "});",
+                "",
+                ""
+              ],
+              "type": "text/javascript"
+            }
+          }
+        ],
+        "id": "e0ac00a0-0639-4bf5-91b0-b91db7dd14bc",
+        "protocolProfileBehavior": {
+          "disableBodyPruning": true
+        },
+        "request": {
+          "method": "POST",
+          "header": [
+
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\"name\":\"Фестиваль\"}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          },
+          "url": {
+            "raw": "{{baseUrl}}/admin/categories",
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "path": [
+              "admin",
+              "categories"
+            ]
+          }
+        },
+        "response": [
+
+        ],
+        "uid": "21546980-e0ac00a0-0639-4bf5-91b0-b91db7dd14bc"
+      },
+      {
+        "name": "Добавление события",
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "99a908a0-209f-469f-93ae-8ce614934be7",
+              "exec": [
+                "",
+                "pm.test(\"Response status code is 201\", function () {",
+                "    pm.response.to.have.status(201);",
+                "});",
+                "",
+                "",
+                "pm.test(\"Validate the 'id' field is a non-negative integer\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData).to.be.an('object');",
+                "    pm.expect(responseData.id).to.be.a('number');",
+                "    pm.expect(responseData.id).to.be.at.least(0);",
+                "});",
+                "",
+                "",
+                "pm.test(\"The title field should be a non-empty string\", function () {",
+                "  const responseData = pm.response.json();",
+                "  ",
+                "  pm.expect(responseData.title).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Value should not be empty\");",
+                "});",
+                "",
+                "",
+                "pm.test(\"Validate eventDate field is a valid date format\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData.eventDate).to.match(/^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$/);",
+                "});",
+                "",
+                "",
+                "pm.test(\"Verify that the initiator object is present in the response\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData.initiator).to.exist.and.to.be.an('object');",
+                "    pm.expect(responseData.initiator.id).to.exist.and.to.be.a('number');",
+                "    pm.expect(responseData.initiator.name).to.exist.and.to.be.a('string');",
+                "});",
+                "",
+                ""
+              ],
+              "type": "text/javascript"
+            }
+          }
+        ],
+        "id": "712803e7-48ce-45d4-b644-8304eab372dc",
+        "protocolProfileBehavior": {
+          "disableBodyPruning": true
+        },
+        "request": {
+          "method": "POST",
+          "header": [
+
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\"annotation\":\"Numquam vel doloremque fuga. Provident magni temporibus maiores mollitia. Laudantium enim dolore non modi natus consequuntur. Quo laudantium iusto impedit.\",\"category\":1,\"description\":\"Suscipit enim optio eaque qui ducimus quisquam dolorem harum. Voluptas laborum velit eos. Distinctio ipsum ab culpa placeat vel explicabo minima dolor. Saepe at accusantium suscipit itaque quasi.\\n \\rAut fuga saepe pariatur soluta vel temporibus. Laudantium non dolorem deleniti. Enim excepturi quisquam. Hic dolorem saepe reiciendis illo sunt voluptatem debitis officia repudiandae.\\n \\rAccusantium dolor unde fuga repellendus dolor. Quis consectetur voluptatem voluptates dolorum exercitationem omnis. Adipisci illum atque ut est inventore inventore. Veritatis veniam aperiam rerum ullam nostrum in esse. Voluptatem id et in rerum. Earum doloremque commodi velit totam dolores et ipsum ea.\",\"eventDate\":\"2025-01-12 18:15:29\",\"location\":{\"lat\":26.351,\"lon\":-84.5378},\"paid\":\"false\",\"participantLimit\":\"890\",\"requestModeration\":\"false\",\"title\":\"Fuga sed laboriosam accusamus eos at sequi.\"}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          },
+          "url": {
+            "raw": "{{baseUrl}}/users/1/events/",
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "path": [
+              "users",
+              "1",
+              "events",
+              ""
+            ]
+          }
+        },
+        "response": [
+
+        ],
+        "uid": "21546980-712803e7-48ce-45d4-b644-8304eab372dc"
+      },
+      {
+        "name": "Добавить комментарий к не опубликованному событию",
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "7f862bf4-0afa-492f-b91c-56f8900f334a",
+              "exec": [
+                "",
+                "pm.test(\"Response status code is 400\", function () {",
+                "  pm.expect(pm.response.code).to.equal(400);",
+                "});",
+                "",
+                "",
+                "pm.test(\"Response has required fields\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData).to.be.an('object');",
+                "    pm.expect(responseData.message).to.exist.and.to.be.a('string');",
+                "    pm.expect(responseData.reason).to.exist.and.to.be.a('string');",
+                "    pm.expect(responseData.status).to.exist.and.to.be.a('string');",
+                "    pm.expect(responseData.timestamp).to.exist.and.to.be.a('string');",
+                "});",
+                "",
+                "",
+                "pm.test(\"Message is a non-empty string\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData.message).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Value should not be empty\");",
+                "});",
+                "",
+                "",
+                "pm.test(\"Reason is a non-empty string\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData.reason).to.exist.and.to.be.a('string').and.to.have.lengthOf.at.least(1, \"Value should not be empty\");",
+                "});",
+                "",
+                "",
+                "pm.test(\"Status is a non-empty string\", function () {",
+                "  const responseData = pm.response.json();",
+                "  ",
+                "  pm.expect(responseData).to.be.an('object');",
+                "  pm.expect(responseData.status).to.exist.and.to.be.a('string').and.to.have.lengthOf.at.least(1, \"Value should not be empty\");",
+                "});",
+                "",
+                ""
+              ],
+              "type": "text/javascript"
+            }
+          }
+        ],
+        "id": "46c1427d-0e5e-4867-9984-18419724cd71",
+        "protocolProfileBehavior": {
+          "disableBodyPruning": true
+        },
+        "request": {
+          "method": "POST",
+          "header": [
+
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n    \"text\": \"Очень интересно\"\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          },
+          "url": {
+            "raw": "{{baseUrl}}/users/1/events/1/comments",
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "path": [
+              "users",
+              "1",
+              "events",
+              "1",
+              "comments"
+            ]
+          }
+        },
+        "response": [
+
+        ],
+        "uid": "21546980-46c1427d-0e5e-4867-9984-18419724cd71"
+      },
+      {
+        "name": "Публикация события",
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "92ba0861-8239-46c3-8e16-b922db0b3dd7",
+              "exec": [
+                "",
+                "pm.test(\"Response status code is 200\", function () {",
+                "  pm.expect(pm.response.code).to.equal(200);",
+                "});",
+                "",
+                "",
+                "pm.test(\"Title is a non-empty string\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData).to.be.an('object');",
+                "    pm.expect(responseData.title).to.exist.and.to.be.a('string').and.to.have.lengthOf.at.least(1, \"Value should not be empty\");",
+                "});",
+                "",
+                "",
+                "pm.test(\"Event date is in a valid format\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData.eventDate).to.match(/^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$/);",
+                "});",
+                "",
+                "",
+                "pm.test(\"Initiator object is present and has the required fields\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData.initiator).to.exist;",
+                "    pm.expect(responseData.initiator).to.be.an('object');",
+                "    ",
+                "    pm.expect(responseData.initiator.id).to.exist;",
+                "    pm.expect(responseData.initiator.id).to.be.a('number');",
+                "    ",
+                "    pm.expect(responseData.initiator.name).to.exist;",
+                "    pm.expect(responseData.initiator.name).to.be.a('string');",
+                "});",
+                "",
+                ""
+              ],
+              "type": "text/javascript"
+            }
+          }
+        ],
+        "id": "34e8df65-470e-4f43-89b0-409e0b3004ac",
+        "protocolProfileBehavior": {
+          "disableBodyPruning": true
+        },
+        "request": {
+          "method": "PATCH",
+          "header": [
+
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n    \"stateAction\": \"PUBLISH_EVENT\"\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          },
+          "url": {
+            "raw": "{{baseUrl}}/admin/events/1",
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "path": [
+              "admin",
+              "events",
+              "1"
+            ]
+          }
+        },
+        "response": [
+
+        ],
+        "uid": "21546980-34e8df65-470e-4f43-89b0-409e0b3004ac"
+      },
+      {
+        "name": "Добавить комментарий к опубликованному событию",
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "5abe3fac-d091-462d-8f64-d3230bb1316b",
+              "exec": [
+                "",
+                "pm.test(\"Response status code is 201\", function () {",
+                "  pm.response.to.have.status(201);",
+                "});",
+                "",
+                "",
+                "pm.test(\"Response has the required fields\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData).to.be.an('object');",
+                "    pm.expect(responseData.id).to.exist;",
+                "    pm.expect(responseData.authorName).to.exist;",
+                "    pm.expect(responseData.text).to.exist;",
+                "    pm.expect(responseData.updated).to.exist;",
+                "});",
+                "",
+                "",
+                "pm.test(\"Author name is a non-empty string\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData.authorName).to.exist.and.to.be.a('string').and.to.have.lengthOf.at.least(1, \"Author name should not be empty\");",
+                "});",
+                "",
+                "",
+                "pm.test(\"Text is a non-empty string\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData).to.be.an('object');",
+                "    pm.expect(responseData.text).to.exist.and.to.be.a('string').and.to.have.lengthOf.at.least(1, \"Value should not be empty\");",
+                "});",
+                "",
+                "",
+                "pm.test(\"updated date is in a valid date format\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData.updated).to.match(/^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$/, \"Invalid date format\");",
+                "});",
+                "",
+                ""
+              ],
+              "type": "text/javascript"
+            }
+          }
+        ],
+        "id": "5f79cab7-fa3f-4696-ac70-15a588ea9a0b",
+        "protocolProfileBehavior": {
+          "disableBodyPruning": true
+        },
+        "request": {
+          "method": "POST",
+          "header": [
+
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n    \"text\": \"Могу писать теперь\"\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          },
+          "url": {
+            "raw": "{{baseUrl}}/users/1/events/1/comments",
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "path": [
+              "users",
+              "1",
+              "events",
+              "1",
+              "comments"
+            ]
+          }
+        },
+        "response": [
+
+        ],
+        "uid": "21546980-5f79cab7-fa3f-4696-ac70-15a588ea9a0b"
+      },
+      {
+        "name": "Редактирование комментария",
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "53e84358-ca3f-46d0-bdd5-59cde6e78791",
+              "exec": [
+                "",
+                "pm.test(\"Response status code is 200\", function () {",
+                "    pm.response.to.have.status(200);",
+                "});",
+                "",
+                "",
+                "pm.test(\"Validate the id field in the response\", function () {",
+                "  const responseData = pm.response.json();",
+                "  ",
+                "  pm.expect(responseData).to.be.an('object');",
+                "  pm.expect(responseData.id).to.exist.and.to.be.a('number');",
+                "});",
+                "",
+                "",
+                "pm.test(\"Author name is a non-empty string\", function () {",
+                "  const responseData = pm.response.json();",
+                "  ",
+                "  pm.expect(responseData.authorName).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Author name should not be empty\");",
+                "});",
+                "",
+                "",
+                "pm.test(\"Text field is a non-empty string\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData.text).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Value should not be empty\");",
+                "});",
+                "",
+                "",
+                "pm.test(\"updated field is a valid date and time format\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData).to.be.an('object');",
+                "    pm.expect(responseData.updated).to.match(/^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$/, \"Invalid date and time format\");",
+                "});",
+                "",
+                ""
+              ],
+              "type": "text/javascript"
+            }
+          }
+        ],
+        "id": "b7b0caad-3761-42f6-b60d-1c5645d99f90",
+        "protocolProfileBehavior": {
+          "disableBodyPruning": true
+        },
+        "request": {
+          "method": "PATCH",
+          "header": [
+
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n    \"text\": \"Могу писать теперь всякую всячину\"\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          },
+          "url": {
+            "raw": "{{baseUrl}}/users/1/comments/1",
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "path": [
+              "users",
+              "1",
+              "comments",
+              "1"
+            ]
+          }
+        },
+        "response": [
+
+        ],
+        "uid": "21546980-b7b0caad-3761-42f6-b60d-1c5645d99f90"
+      },
+      {
+        "name": "Добавление второго комментария",
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "5abe3fac-d091-462d-8f64-d3230bb1316b",
+              "exec": [
+                "",
+                "pm.test(\"Response status code is 201\", function () {",
+                "  pm.response.to.have.status(201);",
+                "});",
+                "",
+                "",
+                "pm.test(\"Response has the required fields\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData).to.be.an('object');",
+                "    pm.expect(responseData.id).to.exist;",
+                "    pm.expect(responseData.authorName).to.exist;",
+                "    pm.expect(responseData.text).to.exist;",
+                "    pm.expect(responseData.updated).to.exist;",
+                "});",
+                "",
+                "",
+                "pm.test(\"Author name is a non-empty string\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData.authorName).to.exist.and.to.be.a('string').and.to.have.lengthOf.at.least(1, \"Author name should not be empty\");",
+                "});",
+                "",
+                "",
+                "pm.test(\"Text is a non-empty string\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData).to.be.an('object');",
+                "    pm.expect(responseData.text).to.exist.and.to.be.a('string').and.to.have.lengthOf.at.least(1, \"Value should not be empty\");",
+                "});",
+                "",
+                "",
+                "pm.test(\"updated date is in a valid date format\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "pm.expect(responseData.updated).to.match(/^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$/, \"Invalid date format\");",
+                "});",
+                "",
+                ""
+              ],
+              "type": "text/javascript"
+            }
+          }
+        ],
+        "id": "86edd090-1fc2-4541-809c-5326d2d71277",
+        "protocolProfileBehavior": {
+          "disableBodyPruning": true
+        },
+        "request": {
+          "method": "POST",
+          "header": [
+
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n    \"text\": \"Что бы еще такого написать\"\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          },
+          "url": {
+            "raw": "{{baseUrl}}/users/1/events/1/comments",
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "path": [
+              "users",
+              "1",
+              "events",
+              "1",
+              "comments"
+            ]
+          }
+        },
+        "response": [
+
+        ],
+        "uid": "21546980-86edd090-1fc2-4541-809c-5326d2d71277"
+      },
+      {
+        "name": "Добавление третьего комментария",
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "5abe3fac-d091-462d-8f64-d3230bb1316b",
+              "exec": [
+                "",
+                "pm.test(\"Response status code is 201\", function () {",
+                "  pm.response.to.have.status(201);",
+                "});",
+                "",
+                "",
+                "pm.test(\"Response has the required fields\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData).to.be.an('object');",
+                "    pm.expect(responseData.id).to.exist;",
+                "    pm.expect(responseData.authorName).to.exist;",
+                "    pm.expect(responseData.text).to.exist;",
+                "    pm.expect(responseData.updated).to.exist;",
+                "});",
+                "",
+                "",
+                "pm.test(\"Author name is a non-empty string\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData.authorName).to.exist.and.to.be.a('string').and.to.have.lengthOf.at.least(1, \"Author name should not be empty\");",
+                "});",
+                "",
+                "",
+                "pm.test(\"Text is a non-empty string\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData).to.be.an('object');",
+                "    pm.expect(responseData.text).to.exist.and.to.be.a('string').and.to.have.lengthOf.at.least(1, \"Value should not be empty\");",
+                "});",
+                "",
+                "",
+                "pm.test(\"updated date is in a valid date format\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "pm.expect(responseData.updated).to.match(/^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$/, \"Invalid date format\");",
+                "});",
+                "",
+                ""
+              ],
+              "type": "text/javascript"
+            }
+          }
+        ],
+        "id": "95cc79ed-d3d2-4c3d-b18d-933ee1bc3345",
+        "protocolProfileBehavior": {
+          "disableBodyPruning": true
+        },
+        "request": {
+          "method": "POST",
+          "header": [
+
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n    \"text\": \"Очень инетересное события\"\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          },
+          "url": {
+            "raw": "{{baseUrl}}/users/1/events/1/comments",
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "path": [
+              "users",
+              "1",
+              "events",
+              "1",
+              "comments"
+            ]
+          }
+        },
+        "response": [
+
+        ],
+        "uid": "21546980-95cc79ed-d3d2-4c3d-b18d-933ee1bc3345"
+      },
+      {
+        "name": "Просмотр комментариев к событию",
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "e9a58e27-6033-4ac6-b01e-a4e0e9377ccc",
+              "exec": [
+                "",
+                "pm.test(\"Response status code is 200\", function () {",
+                "  pm.expect(pm.response.code).to.equal(200);",
+                "});",
+                "",
+                "",
+                "pm.test(\"Author name is a non-empty string\", function () {",
+                "    const responseData = pm.response.json();",
+                "",
+                "    pm.expect(responseData).to.be.an('array');",
+                "    responseData.forEach(comment => {",
+                "        pm.expect(comment.authorName).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Author name should not be empty\");",
+                "    });",
+                "});",
+                "",
+                "",
+                "pm.test(\"Text is a non-empty string\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    responseData.forEach(function(comment) {",
+                "        pm.expect(comment.text).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Value should not be empty\");",
+                "    });",
+                "});",
+                "",
+                "",
+                "pm.test(\"Updated date is in a valid format\", function () {",
+                "    const responseData = pm.response.json();",
+                "",
+                "    pm.expect(responseData).to.be.an('array').and.to.have.lengthOf.at.least(1);",
+                "",
+                "    responseData.forEach(function(comment) {",
+                "        pm.expect(comment.updated).to.exist.and.to.match(/^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$/);",
+                "    });",
+                "});",
+                "",
+                "pm.test(\"List length must be 3\", function () {",
+                "    const responseData = pm.response.json();",
+                "    pm.expect(responseData).to.be.an('array').and.to.have.lengthOf(3);",
+                "});",
+                "",
+                "",
+                "pm.test(\"Response has the required fields - id, authorName, text, updated\", function () {",
+                "  const responseData = pm.response.json();",
+                "",
+                "  pm.expect(responseData).to.be.an('array').that.is.not.empty;",
+                "",
+                "  responseData.forEach(function(comment) {",
+                "    pm.expect(comment.id).to.exist.and.to.be.a('number');",
+                "    pm.expect(comment.authorName).to.exist.and.to.be.a('string');",
+                "    pm.expect(comment.text).to.exist.and.to.be.a('string');",
+                "    pm.expect(comment.updated).to.exist.and.to.be.a('string');",
+                "  });",
+                "});",
+                "",
+                "pm.test(\"Id is a non-negative integer\", function () {",
+                "    const responseData = pm.response.json();",
+                "",
+                "    pm.expect(responseData).to.be.an('array');",
+                "",
+                "    responseData.forEach(function (comment) {",
+                "        pm.expect(comment.id).to.be.a('number');",
+                "        pm.expect(comment.id).to.be.at.least(0);",
+                "    });",
+                "});",
+                "",
+                "",
+                "pm.test(\"Author name is a non-empty string\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData).to.be.an('array');",
+                "    responseData.forEach(function(comment) {",
+                "        pm.expect(comment.authorName).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Author name should not be empty\");",
+                "    });",
+                "});",
+                "",
+                "",
+                "pm.test(\"Text is a non-empty string\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData).to.be.an('array');",
+                "    responseData.forEach(function(comment) {",
+                "        pm.expect(comment.text).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Value should not be empty\");",
+                "    });",
+                "});",
+                "",
+                ""
+              ],
+              "type": "text/javascript"
+            }
+          }
+        ],
+        "id": "26ef5daf-84f3-4b95-9fb1-62c4578f760f",
+        "protocolProfileBehavior": {
+          "disableBodyPruning": true
+        },
+        "request": {
+          "method": "GET",
+          "header": [
+
+          ],
+          "url": {
+            "raw": "{{baseUrl}}/events/1/comments",
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "path": [
+              "events",
+              "1",
+              "comments"
+            ]
+          }
+        },
+        "response": [
+
+        ],
+        "uid": "21546980-26ef5daf-84f3-4b95-9fb1-62c4578f760f"
+      },
+      {
+        "name": "Удаление пользователем своего комментария",
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "b4af1b92-4b6f-4e56-96eb-a207e8511b0b",
+              "exec": [
+                "pm.test(\"Response status code is 204\", function () {",
+                "  pm.expect(pm.response.code).to.equal(204);",
+                "});"
+              ],
+              "type": "text/javascript"
+            }
+          }
+        ],
+        "id": "d3aac2f6-19cb-43dd-9ac2-5fa605b0d35a",
+        "protocolProfileBehavior": {
+          "disableBodyPruning": true
+        },
+        "request": {
+          "method": "DELETE",
+          "header": [
+
+          ],
+          "url": {
+            "raw": "{{baseUrl}}/users/1/comments/1",
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "path": [
+              "users",
+              "1",
+              "comments",
+              "1"
+            ]
+          }
+        },
+        "response": [
+
+        ],
+        "uid": "21546980-d3aac2f6-19cb-43dd-9ac2-5fa605b0d35a"
+      },
+      {
+        "name": "Просмотр комментариев к событию после удаления",
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "e9a58e27-6033-4ac6-b01e-a4e0e9377ccc",
+              "exec": [
+                "",
+                "pm.test(\"Response status code is 200\", function () {",
+                "  pm.expect(pm.response.code).to.equal(200);",
+                "});",
+                "",
+                "",
+                "pm.test(\"Author name is a non-empty string\", function () {",
+                "    const responseData = pm.response.json();",
+                "",
+                "    pm.expect(responseData).to.be.an('array');",
+                "    responseData.forEach(comment => {",
+                "        pm.expect(comment.authorName).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Author name should not be empty\");",
+                "    });",
+                "});",
+                "",
+                "",
+                "pm.test(\"Text is a non-empty string\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    responseData.forEach(function(comment) {",
+                "        pm.expect(comment.text).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Value should not be empty\");",
+                "    });",
+                "});",
+                "",
+                "",
+                "pm.test(\"Updated date is in a valid format\", function () {",
+                "    const responseData = pm.response.json();",
+                "",
+                "    pm.expect(responseData).to.be.an('array').and.to.have.lengthOf.at.least(1);",
+                "",
+                "    responseData.forEach(function(comment) {",
+                "        pm.expect(comment.updated).to.exist.and.to.match(/^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$/);",
+                "    });",
+                "});",
+                "",
+                "pm.test(\"List length must be 2\", function () {",
+                "    const responseData = pm.response.json();",
+                "    pm.expect(responseData).to.be.an('array').and.to.have.lengthOf(2);",
+                "});",
+                "",
+                "",
+                "pm.test(\"Response has the required fields - id, authorName, text, updated\", function () {",
+                "  const responseData = pm.response.json();",
+                "",
+                "  pm.expect(responseData).to.be.an('array').that.is.not.empty;",
+                "",
+                "  responseData.forEach(function(comment) {",
+                "    pm.expect(comment.id).to.exist.and.to.be.a('number');",
+                "    pm.expect(comment.authorName).to.exist.and.to.be.a('string');",
+                "    pm.expect(comment.text).to.exist.and.to.be.a('string');",
+                "    pm.expect(comment.updated).to.exist.and.to.be.a('string');",
+                "  });",
+                "});",
+                "",
+                "pm.test(\"Id is a non-negative integer\", function () {",
+                "    const responseData = pm.response.json();",
+                "",
+                "    pm.expect(responseData).to.be.an('array');",
+                "",
+                "    responseData.forEach(function (comment) {",
+                "        pm.expect(comment.id).to.be.a('number');",
+                "        pm.expect(comment.id).to.be.at.least(0);",
+                "    });",
+                "});",
+                "",
+                "",
+                "pm.test(\"Author name is a non-empty string\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData).to.be.an('array');",
+                "    responseData.forEach(function(comment) {",
+                "        pm.expect(comment.authorName).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Author name should not be empty\");",
+                "    });",
+                "});",
+                "",
+                "",
+                "pm.test(\"Text is a non-empty string\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData).to.be.an('array');",
+                "    responseData.forEach(function(comment) {",
+                "        pm.expect(comment.text).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Value should not be empty\");",
+                "    });",
+                "});",
+                "",
+                ""
+              ],
+              "type": "text/javascript"
+            }
+          }
+        ],
+        "id": "0dc3ca80-9af9-44eb-85cf-0b5e8aea8c9e",
+        "protocolProfileBehavior": {
+          "disableBodyPruning": true
+        },
+        "request": {
+          "method": "GET",
+          "header": [
+
+          ],
+          "url": {
+            "raw": "{{baseUrl}}/events/1/comments",
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "path": [
+              "events",
+              "1",
+              "comments"
+            ]
+          }
+        },
+        "response": [
+
+        ],
+        "uid": "21546980-0dc3ca80-9af9-44eb-85cf-0b5e8aea8c9e"
+      },
+      {
+        "name": "Удаление комментария администратором",
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "b4af1b92-4b6f-4e56-96eb-a207e8511b0b",
+              "exec": [
+                "pm.test(\"Response status code is 204\", function () {",
+                "  pm.expect(pm.response.code).to.equal(204);",
+                "});"
+              ],
+              "type": "text/javascript"
+            }
+          }
+        ],
+        "id": "73b59f4e-932c-4d1a-a256-7646e16656cd",
+        "protocolProfileBehavior": {
+          "disableBodyPruning": true
+        },
+        "request": {
+          "method": "DELETE",
+          "header": [
+
+          ],
+          "url": {
+            "raw": "{{baseUrl}}/admin/comments/2",
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "path": [
+              "admin",
+              "comments",
+              "2"
+            ]
+          }
+        },
+        "response": [
+
+        ],
+        "uid": "21546980-73b59f4e-932c-4d1a-a256-7646e16656cd"
+      },
+      {
+        "name": "Просмотр комментариев к событию после удаления админом",
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "e9a58e27-6033-4ac6-b01e-a4e0e9377ccc",
+              "exec": [
+                "",
+                "pm.test(\"Response status code is 200\", function () {",
+                "  pm.expect(pm.response.code).to.equal(200);",
+                "});",
+                "",
+                "",
+                "pm.test(\"Author name is a non-empty string\", function () {",
+                "    const responseData = pm.response.json();",
+                "",
+                "    pm.expect(responseData).to.be.an('array');",
+                "    responseData.forEach(comment => {",
+                "        pm.expect(comment.authorName).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Author name should not be empty\");",
+                "    });",
+                "});",
+                "",
+                "",
+                "pm.test(\"Text is a non-empty string\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    responseData.forEach(function(comment) {",
+                "        pm.expect(comment.text).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Value should not be empty\");",
+                "    });",
+                "});",
+                "",
+                "",
+                "pm.test(\"Update is in a valid format\", function () {",
+                "    const responseData = pm.response.json();",
+                "",
+                "    pm.expect(responseData).to.be.an('array').and.to.have.lengthOf.at.least(1);",
+                "",
+                "    responseData.forEach(function(comment) {",
+                "        pm.expect(comment.updated).to.exist.and.to.match(/^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$/);",
+                "    });",
+                "});",
+                "",
+                "pm.test(\"List length must be 1\", function () {",
+                "    const responseData = pm.response.json();",
+                "    pm.expect(responseData).to.be.an('array').and.to.have.lengthOf(1);",
+                "});",
+                "",
+                "",
+                "pm.test(\"Response has the required fields - id, authorName, text, updated\", function () {",
+                "  const responseData = pm.response.json();",
+                "",
+                "  pm.expect(responseData).to.be.an('array').that.is.not.empty;",
+                "",
+                "  responseData.forEach(function(comment) {",
+                "    pm.expect(comment.id).to.exist.and.to.be.a('number');",
+                "    pm.expect(comment.authorName).to.exist.and.to.be.a('string');",
+                "    pm.expect(comment.text).to.exist.and.to.be.a('string');",
+                "    pm.expect(comment.updated).to.exist.and.to.be.a('string');",
+                "  });",
+                "});",
+                "",
+                "pm.test(\"Id is a non-negative integer\", function () {",
+                "    const responseData = pm.response.json();",
+                "",
+                "    pm.expect(responseData).to.be.an('array');",
+                "",
+                "    responseData.forEach(function (comment) {",
+                "        pm.expect(comment.id).to.be.a('number');",
+                "        pm.expect(comment.id).to.be.at.least(0);",
+                "    });",
+                "});",
+                "",
+                "",
+                "pm.test(\"Author name is a non-empty string\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData).to.be.an('array');",
+                "    responseData.forEach(function(comment) {",
+                "        pm.expect(comment.authorName).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Author name should not be empty\");",
+                "    });",
+                "});",
+                "",
+                "",
+                "pm.test(\"Text is a non-empty string\", function () {",
+                "    const responseData = pm.response.json();",
+                "    ",
+                "    pm.expect(responseData).to.be.an('array');",
+                "    responseData.forEach(function(comment) {",
+                "        pm.expect(comment.text).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Value should not be empty\");",
+                "    });",
+                "});",
+                "",
+                ""
+              ],
+              "type": "text/javascript"
+            }
+          }
+        ],
+        "id": "05f4120e-e982-42b5-af4d-1d75a5cfa5dd",
+        "protocolProfileBehavior": {
+          "disableBodyPruning": true
+        },
+        "request": {
+          "method": "GET",
+          "header": [
+
+          ],
+          "url": {
+            "raw": "{{baseUrl}}/events/1/comments",
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "path": [
+              "events",
+              "1",
+              "comments"
+            ]
+          }
+        },
+        "response": [
+
+        ],
+        "uid": "21546980-05f4120e-e982-42b5-af4d-1d75a5cfa5dd"
+      }
+    ],
+    "variable": [
+      {
+        "key": "baseUrl",
+        "value": "http://localhost:8080"
+      }
+    ]
+  }
+}
